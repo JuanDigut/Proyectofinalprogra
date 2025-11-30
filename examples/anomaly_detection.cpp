@@ -163,7 +163,7 @@ int main() {
     const int DECODER_H1 = 8;
     const int OUTPUT_SIZE = 2;
     
-    std::cout << "\n=== Generando datos ===" << std::endl;
+    std::cout << "\n=== Generating Data ===" << std::endl;
     
     // Generate normal training data
     std::vector<float> normal_data;
@@ -173,8 +173,8 @@ int main() {
     std::vector<float> anomaly_data;
     generateAnomalies(NUM_ANOMALIES, anomaly_data);
     
-    std::cout << "- Datos normales: " << NUM_NORMAL << " puntos" << std::endl;
-    std::cout << "- Anomalías: " << NUM_ANOMALIES << " puntos" << std::endl;
+    std::cout << "- Normal data: " << NUM_NORMAL << " points" << std::endl;
+    std::cout << "- Anomalies: " << NUM_ANOMALIES << " points" << std::endl;
     
     // Create training tensor (only normal data for training)
     Tensor train_tensor = createTensor2D(normal_data, NUM_NORMAL, INPUT_SIZE);
@@ -189,7 +189,7 @@ int main() {
     std::vector<int> test_labels(NUM_NORMAL, 0);
     test_labels.insert(test_labels.end(), NUM_ANOMALIES, 1);
     
-    std::cout << "\n=== Arquitectura del Autoencoder ===" << std::endl;
+    std::cout << "\n=== Autoencoder Architecture ===" << std::endl;
     std::cout << "Encoder: " << INPUT_SIZE << " -> " << ENCODER_H1 << " -> " << LATENT_SIZE << std::endl;
     std::cout << "Decoder: " << LATENT_SIZE << " -> " << DECODER_H1 << " -> " << OUTPUT_SIZE << std::endl;
     
@@ -322,7 +322,7 @@ int main() {
     TF_CHECK_OK(session.Run({enc_w1_init, enc_b1_init, enc_w2_init, enc_b2_init,
                              dec_w1_init, dec_b1_init, dec_w2_init, dec_b2_init}, nullptr));
     
-    std::cout << "\n=== Entrenando autoencoder ===" << std::endl;
+    std::cout << "\n=== Training Autoencoder ===" << std::endl;
     std::cout << std::fixed << std::setprecision(4);
     
     // Training loop
@@ -342,7 +342,7 @@ int main() {
     }
     
     // Evaluate on test data (normal + anomalies)
-    std::cout << "\n=== Resultados de Detección ===" << std::endl;
+    std::cout << "\n=== Detection Results ===" << std::endl;
     
     std::vector<Tensor> test_outputs;
     TF_CHECK_OK(session.Run(
@@ -369,8 +369,8 @@ int main() {
     
     float threshold = mean_error + 2.0f * std_error;
     
-    std::cout << "Umbral de anomalía: " << threshold << std::endl;
-    std::cout << "(basado en media + 2*desviación estándar del error de reconstrucción)" << std::endl;
+    std::cout << "Anomaly threshold: " << threshold << std::endl;
+    std::cout << "(based on mean + 2*std of reconstruction error)" << std::endl;
     
     // Compute detection metrics
     int tp, fp, tn, fn;
@@ -379,58 +379,58 @@ int main() {
     int anomalies_detected = tp;
     int total_anomalies = NUM_ANOMALIES;
     
-    std::cout << "\nAnomalías detectadas: " << anomalies_detected << "/" << total_anomalies << std::endl;
-    std::cout << "Falsos positivos: " << fp << std::endl;
-    std::cout << "Falsos negativos: " << fn << std::endl;
+    std::cout << "\nAnomalies detected: " << anomalies_detected << "/" << total_anomalies << std::endl;
+    std::cout << "False positives: " << fp << std::endl;
+    std::cout << "False negatives: " << fn << std::endl;
     
     float precision = (tp + fp > 0) ? (100.0f * tp / (tp + fp)) : 0.0f;
     float recall = (tp + fn > 0) ? (100.0f * tp / (tp + fn)) : 0.0f;
     float accuracy = 100.0f * (tp + tn) / (tp + tn + fp + fn);
     float f1_score = (precision + recall > 0) ? (2.0f * precision * recall / (precision + recall)) : 0.0f;
     
-    std::cout << "\n=== Métricas de Detección ===" << std::endl;
-    std::cout << "Precisión: " << std::setprecision(1) << precision << "%" << std::endl;
+    std::cout << "\n=== Detection Metrics ===" << std::endl;
+    std::cout << "Precision: " << std::setprecision(1) << precision << "%" << std::endl;
     std::cout << "Recall: " << recall << "%" << std::endl;
     std::cout << "Accuracy: " << accuracy << "%" << std::endl;
     std::cout << "F1-Score: " << std::setprecision(2) << f1_score << "%" << std::endl;
     
     // Show some example reconstructions
-    std::cout << "\n=== Ejemplos de Reconstrucción ===" << std::endl;
+    std::cout << "\n=== Reconstruction Examples ===" << std::endl;
     std::cout << std::setprecision(3);
     std::cout << std::setw(10) << "Original X" << " | "
               << std::setw(10) << "Original Y" << " | "
               << std::setw(10) << "Recon X" << " | "
               << std::setw(10) << "Recon Y" << " | "
               << std::setw(10) << "Error" << " | "
-              << std::setw(10) << "Tipo" << std::endl;
+              << std::setw(10) << "Type" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
     
     auto test_data_mat = test_tensor.matrix<float>();
     auto recon_data_mat = test_outputs[0].matrix<float>();
     
     // Show first 5 normal and first 5 anomalies
-    std::cout << "Datos normales:" << std::endl;
+    std::cout << "Normal data:" << std::endl;
     for (int i = 0; i < std::min(5, NUM_NORMAL); ++i) {
         std::cout << std::setw(10) << test_data_mat(i, 0) << " | "
                   << std::setw(10) << test_data_mat(i, 1) << " | "
                   << std::setw(10) << recon_data_mat(i, 0) << " | "
                   << std::setw(10) << recon_data_mat(i, 1) << " | "
                   << std::setw(10) << recon_errors[i] << " | "
-                  << (recon_errors[i] > threshold ? "ANOMALÍA" : "Normal") << std::endl;
+                  << (recon_errors[i] > threshold ? "ANOMALY" : "Normal") << std::endl;
     }
     
-    std::cout << "\nAnomalías:" << std::endl;
+    std::cout << "\nAnomalies:" << std::endl;
     for (int i = NUM_NORMAL; i < std::min(NUM_NORMAL + 5, total_test); ++i) {
         std::cout << std::setw(10) << test_data_mat(i, 0) << " | "
                   << std::setw(10) << test_data_mat(i, 1) << " | "
                   << std::setw(10) << recon_data_mat(i, 0) << " | "
                   << std::setw(10) << recon_data_mat(i, 1) << " | "
                   << std::setw(10) << recon_errors[i] << " | "
-                  << (recon_errors[i] > threshold ? "ANOMALÍA" : "Normal") << std::endl;
+                  << (recon_errors[i] > threshold ? "ANOMALY" : "Normal") << std::endl;
     }
     
     std::cout << "\n==========================================" << std::endl;
-    std::cout << "  Detección de anomalías completada!     " << std::endl;
+    std::cout << "  Anomaly detection completed!           " << std::endl;
     std::cout << "==========================================" << std::endl;
     
     return 0;

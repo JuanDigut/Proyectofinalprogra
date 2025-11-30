@@ -170,17 +170,17 @@ int main() {
     const int HIDDEN2_SIZE = 16;
     const int OUTPUT_SIZE = 1;
     
-    std::cout << "\n=== Generando serie temporal ===" << std::endl;
+    std::cout << "\n=== Generating Time Series ===" << std::endl;
     
     // Generate time series
     std::vector<float> series;
     generateTimeSeries(SERIES_LENGTH, SINE_PERIOD, TREND, NOISE_LEVEL, series);
     
-    std::cout << "Longitud: " << SERIES_LENGTH << " puntos" << std::endl;
-    std::cout << "Período de onda: " << SINE_PERIOD << std::endl;
-    std::cout << "Tendencia: " << TREND << std::endl;
-    std::cout << "Nivel de ruido: " << NOISE_LEVEL << std::endl;
-    std::cout << "Tamaño de ventana: " << WINDOW_SIZE << std::endl;
+    std::cout << "Length: " << SERIES_LENGTH << " points" << std::endl;
+    std::cout << "Wave period: " << SINE_PERIOD << std::endl;
+    std::cout << "Trend: " << TREND << std::endl;
+    std::cout << "Noise level: " << NOISE_LEVEL << std::endl;
+    std::cout << "Window size: " << WINDOW_SIZE << std::endl;
     
     // Create sliding windows
     std::vector<float> x_data, y_data;
@@ -202,14 +202,14 @@ int main() {
     Tensor x_test_tensor = createTensor2D(x_test, test_size, WINDOW_SIZE);
     Tensor y_test_tensor = createTensor1D(y_test);
     
-    std::cout << "\nDatos de entrenamiento: " << train_size << " muestras" << std::endl;
-    std::cout << "Datos de prueba: " << test_size << " muestras" << std::endl;
+    std::cout << "\nTraining samples: " << train_size << std::endl;
+    std::cout << "Test samples: " << test_size << std::endl;
     
-    std::cout << "\n=== Arquitectura de la Red ===" << std::endl;
-    std::cout << "Input: " << WINDOW_SIZE << " (ventana de tiempo)" << std::endl;
+    std::cout << "\n=== Network Architecture ===" << std::endl;
+    std::cout << "Input: " << WINDOW_SIZE << " (time window)" << std::endl;
     std::cout << "Hidden 1: " << HIDDEN1_SIZE << " (ReLU)" << std::endl;
     std::cout << "Hidden 2: " << HIDDEN2_SIZE << " (ReLU)" << std::endl;
-    std::cout << "Output: " << OUTPUT_SIZE << " (lineal)" << std::endl;
+    std::cout << "Output: " << OUTPUT_SIZE << " (linear)" << std::endl;
     
     // Create TensorFlow scope
     Scope root = Scope::NewRootScope();
@@ -314,7 +314,7 @@ int main() {
     // Initialize all variables
     TF_CHECK_OK(session.Run({w1_init, b1_init, w2_init, b2_init, w3_init, b3_init}, nullptr));
     
-    std::cout << "\n=== Entrenando modelo ===" << std::endl;
+    std::cout << "\n=== Training Model ===" << std::endl;
     std::cout << "Learning rate: " << LEARNING_RATE << std::endl;
     std::cout << "Epochs: " << NUM_EPOCHS << std::endl;
     std::cout << std::fixed << std::setprecision(4);
@@ -335,7 +335,7 @@ int main() {
     }
     
     // Evaluate on test data
-    std::cout << "\n=== Métricas de Predicción ===" << std::endl;
+    std::cout << "\n=== Prediction Metrics ===" << std::endl;
     
     std::vector<Tensor> test_outputs;
     TF_CHECK_OK(session.Run(
@@ -350,10 +350,10 @@ int main() {
     std::cout << "RMSE: " << rmse << std::endl;
     
     // Show sample predictions
-    std::cout << "\n=== Predicciones de ejemplo ===" << std::endl;
+    std::cout << "\n=== Sample Predictions ===" << std::endl;
     std::cout << std::setw(8) << "t" << " | "
-              << std::setw(12) << "Predicho" << " | "
-              << std::setw(12) << "Real" << " | "
+              << std::setw(12) << "Predicted" << " | "
+              << std::setw(12) << "Actual" << " | "
               << std::setw(12) << "Error" << std::endl;
     std::cout << std::string(55, '-') << std::endl;
     
@@ -387,15 +387,15 @@ int main() {
     float train_mae = calculateMAE(train_outputs[0], y_train_tensor);
     float train_rmse = calculateRMSE(train_outputs[0], y_train_tensor);
     
-    std::cout << "\n=== Comparación Train vs Test ===" << std::endl;
+    std::cout << "\n=== Train vs Test Comparison ===" << std::endl;
     std::cout << "Training MAE:  " << train_mae << std::endl;
     std::cout << "Training RMSE: " << train_rmse << std::endl;
     std::cout << "Test MAE:      " << mae << std::endl;
     std::cout << "Test RMSE:     " << rmse << std::endl;
     
     // Show time series snippet
-    std::cout << "\n=== Fragmento de Serie Temporal ===" << std::endl;
-    std::cout << "(Primeros 20 valores)" << std::endl;
+    std::cout << "\n=== Time Series Snippet ===" << std::endl;
+    std::cout << "(First 20 values)" << std::endl;
     std::cout << std::setprecision(3);
     for (int i = 0; i < std::min(20, SERIES_LENGTH); ++i) {
         std::cout << "t=" << std::setw(3) << i << ": " << std::setw(7) << series[i];
@@ -404,7 +404,7 @@ int main() {
     }
     
     std::cout << "\n\n==========================================" << std::endl;
-    std::cout << "  Predicción de serie temporal completada!" << std::endl;
+    std::cout << "  Time series prediction completed!      " << std::endl;
     std::cout << "==========================================" << std::endl;
     
     return 0;
