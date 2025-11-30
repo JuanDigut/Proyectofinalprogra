@@ -39,7 +39,6 @@ using namespace tensorflow::ops;
 void generatePolynomialData(int num_samples, float noise_level,
                             std::vector<float>& x_data,
                             std::vector<float>& y_data) {
-    std::random_device rd;
     std::mt19937 gen(42);  // Fixed seed for reproducibility
     std::normal_distribution<float> noise(0.0f, noise_level);
     std::uniform_real_distribution<float> x_dist(-2.0f, 2.0f);
