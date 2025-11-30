@@ -15,7 +15,15 @@ target_link_libraries(linear_regression ${TENSORFLOW_LIBS})
 add_executable(neural_network neural_network.cpp)
 target_link_libraries(neural_network ${TENSORFLOW_LIBS})
 
+# Example 6: Anomaly Detection with Autoencoder
+add_executable(anomaly_detection anomaly_detection.cpp)
+target_link_libraries(anomaly_detection ${TENSORFLOW_LIBS})
+
+# Example 7: Time Series Prediction
+add_executable(time_series_prediction time_series_prediction.cpp)
+target_link_libraries(time_series_prediction ${TENSORFLOW_LIBS})
+
 # Install targets
-install(TARGETS basic_operations linear_regression neural_network
+install(TARGETS basic_operations linear_regression neural_network anomaly_detection time_series_prediction
     RUNTIME DESTINATION bin
 )
