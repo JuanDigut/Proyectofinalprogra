@@ -1,252 +1,252 @@
-# TensorFlow C++ Examples - Final Project
+# Ejemplos de TensorFlow C++ - Proyecto Final
 
-This repository contains example programs demonstrating the utility of the TensorFlow C++ library. The examples showcase fundamental operations, linear regression, and neural network classification using TensorFlow's C++ API.
+Este repositorio contiene programas de ejemplo que demuestran la utilidad de la biblioteca TensorFlow C++. Los ejemplos muestran operaciones fundamentales, regresión lineal y clasificación con redes neuronales utilizando la API de C++ de TensorFlow.
 
-## Table of Contents
+## Tabla de Contenidos
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Building the Examples](#building-the-examples)
-- [Examples](#examples)
-  - [Basic Operations](#example-1-basic-operations)
-  - [Linear Regression](#example-2-linear-regression)
-  - [Neural Network Classification](#example-3-neural-network-classification)
-- [Project Structure](#project-structure)
-- [License](#license)
+- [Descripción General](#descripción-general)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Compilación de los Ejemplos](#compilación-de-los-ejemplos)
+- [Ejemplos](#ejemplos)
+  - [Operaciones Básicas](#ejemplo-1-operaciones-básicas)
+  - [Regresión Lineal](#ejemplo-2-regresión-lineal)
+  - [Clasificación con Red Neuronal](#ejemplo-3-clasificación-con-red-neuronal)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Licencia](#licencia)
 
-## Overview
+## Descripción General
 
-TensorFlow provides a powerful C++ API that allows developers to build and deploy machine learning models in C++ applications. This is particularly useful for:
+TensorFlow proporciona una poderosa API de C++ que permite a los desarrolladores construir y desplegar modelos de aprendizaje automático en aplicaciones C++. Esto es particularmente útil para:
 
-- **High-performance applications** where C++ is required
-- **Embedded systems** and IoT devices
-- **Production deployments** requiring low-latency inference
-- **Integration** with existing C++ codebases
+- **Aplicaciones de alto rendimiento** donde se requiere C++
+- **Sistemas embebidos** y dispositivos IoT
+- **Despliegues en producción** que requieren inferencia de baja latencia
+- **Integración** con bases de código C++ existentes
 
-This project demonstrates three key use cases:
-1. Basic tensor operations and mathematical functions
-2. Training a linear regression model
-3. Building and training a neural network for classification
+Este proyecto demuestra tres casos de uso clave:
+1. Operaciones básicas con tensores y funciones matemáticas
+2. Entrenamiento de un modelo de regresión lineal
+3. Construcción y entrenamiento de una red neuronal para clasificación
 
-## Prerequisites
+## Requisitos Previos
 
-Before building these examples, you need:
+Antes de compilar estos ejemplos, necesitas:
 
-- **C++ Compiler** with C++17 support (GCC 7+, Clang 5+, or MSVC 2019+)
-- **CMake** version 3.16 or higher
-- **TensorFlow C++ Library** (libtensorflow_cc)
+- **Compilador C++** con soporte para C++17 (GCC 7+, Clang 5+, o MSVC 2019+)
+- **CMake** versión 3.16 o superior
+- **Biblioteca TensorFlow C++** (libtensorflow_cc)
 
-### Installing TensorFlow C++ Library
+### Instalación de la Biblioteca TensorFlow C++
 
-#### Option 1: Build from Source (Recommended for full functionality)
+#### Opción 1: Compilar desde el Código Fuente (Recomendado para funcionalidad completa)
 
 ```bash
-# Clone TensorFlow repository
+# Clonar el repositorio de TensorFlow
 git clone https://github.com/tensorflow/tensorflow.git
 cd tensorflow
 
-# Configure the build
+# Configurar la compilación
 ./configure
 
-# Build the C++ library
+# Compilar la biblioteca C++
 bazel build //tensorflow:libtensorflow_cc.so
 
-# The library will be in bazel-bin/tensorflow/
+# La biblioteca estará en bazel-bin/tensorflow/
 ```
 
-#### Option 2: Using Pre-built Binaries
+#### Opción 2: Usar Binarios Precompilados
 
-Download pre-built TensorFlow C libraries from:
+Descarga las bibliotecas C de TensorFlow precompiladas desde:
 https://www.tensorflow.org/install/lang_c
 
-Note: The C API has limited functionality compared to the full C++ API.
+Nota: La API de C tiene funcionalidad limitada comparada con la API completa de C++.
 
-#### Option 3: Using Package Managers
+#### Opción 3: Usar Gestores de Paquetes
 
 **Ubuntu/Debian:**
 ```bash
-# Add TensorFlow PPA (if available) or build from source
+# Agregar PPA de TensorFlow (si está disponible) o compilar desde código fuente
 sudo apt-get install libtensorflow-dev
 ```
 
-**macOS with Homebrew:**
+**macOS con Homebrew:**
 ```bash
 brew install tensorflow
 ```
 
-## Building the Examples
+## Compilación de los Ejemplos
 
-### Step 1: Clone the Repository
+### Paso 1: Clonar el Repositorio
 
 ```bash
 git clone https://github.com/JuanDigut/Proyectofinalprogra.git
 cd Proyectofinalprogra
 ```
 
-### Step 2: Create Build Directory
+### Paso 2: Crear el Directorio de Compilación
 
 ```bash
 mkdir build
 cd build
 ```
 
-### Step 3: Configure with CMake
+### Paso 3: Configurar con CMake
 
-If TensorFlow is installed system-wide:
+Si TensorFlow está instalado a nivel de sistema:
 ```bash
 cmake ..
 ```
 
-If TensorFlow is in a custom location:
+Si TensorFlow está en una ubicación personalizada:
 ```bash
-cmake -DTENSORFLOW_DIR=/path/to/tensorflow ..
+cmake -DTENSORFLOW_DIR=/ruta/a/tensorflow ..
 ```
 
-Or using environment variable:
+O usando una variable de entorno:
 ```bash
-export TENSORFLOW_DIR=/path/to/tensorflow
+export TENSORFLOW_DIR=/ruta/a/tensorflow
 cmake ..
 ```
 
-### Step 4: Build
+### Paso 4: Compilar
 
 ```bash
 make -j$(nproc)
 ```
 
-### Step 5: Run Examples
+### Paso 5: Ejecutar los Ejemplos
 
 ```bash
-# Run basic operations example
+# Ejecutar el ejemplo de operaciones básicas
 ./examples/basic_operations
 
-# Run linear regression example
+# Ejecutar el ejemplo de regresión lineal
 ./examples/linear_regression
 
-# Run neural network example
+# Ejecutar el ejemplo de red neuronal
 ./examples/neural_network
 ```
 
-## Examples
+## Ejemplos
 
-### Example 1: Basic Operations
+### Ejemplo 1: Operaciones Básicas
 
-**File:** `examples/basic_operations.cpp`
+**Archivo:** `examples/basic_operations.cpp`
 
-This example demonstrates fundamental TensorFlow C++ operations:
+Este ejemplo demuestra operaciones fundamentales de TensorFlow C++:
 
-- **Scalar Operations**: Addition, subtraction, multiplication, division
-- **Vector Operations**: Element-wise operations on 1D tensors
-- **Matrix Operations**: Matrix multiplication, transpose, element-wise operations
-- **Tensor Shapes**: Reshaping tensors, flattening
-- **Mathematical Functions**: sin, cos, exp, sqrt
+- **Operaciones Escalares**: Suma, resta, multiplicación, división
+- **Operaciones Vectoriales**: Operaciones elemento a elemento en tensores 1D
+- **Operaciones Matriciales**: Multiplicación de matrices, transposición, operaciones elemento a elemento
+- **Formas de Tensores**: Redimensionamiento de tensores, aplanamiento
+- **Funciones Matemáticas**: sin, cos, exp, sqrt
 
-**Sample Output:**
+**Salida de Ejemplo:**
 ```
-=== Scalar Operations ===
+=== Operaciones Escalares ===
 a = 5.0, b = 3.0
 a + b = 8
 a - b = 2
 a * b = 15
 a / b = 1.66667
 
-=== Matrix Operations ===
-mat1 @ mat2 (matrix multiplication) =
+=== Operaciones Matriciales ===
+mat1 @ mat2 (multiplicación de matrices) =
   [[19, 22],
    [43, 50]]
 ```
 
-### Example 2: Linear Regression
+### Ejemplo 2: Regresión Lineal
 
-**File:** `examples/linear_regression.cpp`
+**Archivo:** `examples/linear_regression.cpp`
 
-This example implements a simple linear regression model that learns to fit a line `y = mx + b` to synthetic training data.
+Este ejemplo implementa un modelo simple de regresión lineal que aprende a ajustar una línea `y = mx + b` a datos de entrenamiento sintéticos.
 
-**Key Concepts:**
-- Creating trainable variables (weights and biases)
-- Defining a loss function (Mean Squared Error)
-- Computing gradients for backpropagation
-- Gradient descent optimization
-- Training loop implementation
+**Conceptos Clave:**
+- Creación de variables entrenables (pesos y sesgos)
+- Definición de una función de pérdida (Error Cuadrático Medio)
+- Cálculo de gradientes para retropropagación
+- Optimización por descenso de gradiente
+- Implementación del bucle de entrenamiento
 
-**Sample Output:**
+**Salida de Ejemplo:**
 ```
-=== Training ===
-Epoch    0 | Loss: 125.3456
-Epoch  100 | Loss: 0.2541
-Epoch  200 | Loss: 0.2512
+=== Entrenamiento ===
+Época    0 | Pérdida: 125.3456
+Época  100 | Pérdida: 0.2541
+Época  200 | Pérdida: 0.2512
 ...
-=== Results ===
-Learned slope:     2.4823 (true: 2.5)
-Learned intercept: 1.0234 (true: 1.0)
+=== Resultados ===
+Pendiente aprendida:     2.4823 (real: 2.5)
+Intercepto aprendido: 1.0234 (real: 1.0)
 ```
 
-### Example 3: Neural Network Classification
+### Ejemplo 3: Clasificación con Red Neuronal
 
-**File:** `examples/neural_network.cpp`
+**Archivo:** `examples/neural_network.cpp`
 
-This example builds a 2-layer neural network for binary classification on an XOR-like pattern.
+Este ejemplo construye una red neuronal de 2 capas para clasificación binaria en un patrón similar a XOR.
 
-**Network Architecture:**
-- Input layer: 2 neurons (features)
-- Hidden layer: 8 neurons with Sigmoid activation
-- Output layer: 1 neuron with Sigmoid activation
+**Arquitectura de la Red:**
+- Capa de entrada: 2 neuronas (características)
+- Capa oculta: 8 neuronas con activación Sigmoide
+- Capa de salida: 1 neurona con activación Sigmoide
 
-**Key Concepts:**
-- Multi-layer neural network construction
-- Activation functions (Sigmoid)
-- Binary Cross-Entropy loss
-- Manual backpropagation implementation
-- Classification accuracy metrics
+**Conceptos Clave:**
+- Construcción de redes neuronales multicapa
+- Funciones de activación (Sigmoide)
+- Pérdida de Entropía Cruzada Binaria
+- Implementación manual de retropropagación
+- Métricas de precisión de clasificación
 
-**Sample Output:**
+**Salida de Ejemplo:**
 ```
-=== Training ===
-Epoch    0 | Loss: 0.6931 | Accuracy: 50.00%
-Epoch  200 | Loss: 0.5234 | Accuracy: 72.50%
-Epoch  400 | Loss: 0.3156 | Accuracy: 88.00%
+=== Entrenamiento ===
+Época    0 | Pérdida: 0.6931 | Precisión: 50.00%
+Época  200 | Pérdida: 0.5234 | Precisión: 72.50%
+Época  400 | Pérdida: 0.3156 | Precisión: 88.00%
 ...
-=== Final Evaluation ===
-Final Loss: 0.0823
-Final Accuracy: 97.50%
+=== Evaluación Final ===
+Pérdida Final: 0.0823
+Precisión Final: 97.50%
 ```
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 Proyectofinalprogra/
-├── CMakeLists.txt           # Main CMake configuration
-├── README.md                # This file
+├── CMakeLists.txt           # Configuración principal de CMake
+├── README.md                # Este archivo
 ├── examples/
-│   ├── CMakeLists.txt       # Examples CMake configuration
-│   ├── basic_operations.cpp # Example 1: Basic tensor operations
-│   ├── linear_regression.cpp# Example 2: Linear regression model
-│   └── neural_network.cpp   # Example 3: Neural network classifier
-├── include/                 # Header files (if needed)
-└── src/                     # Source files (if needed)
+│   ├── CMakeLists.txt       # Configuración de CMake para ejemplos
+│   ├── basic_operations.cpp # Ejemplo 1: Operaciones básicas con tensores
+│   ├── linear_regression.cpp# Ejemplo 2: Modelo de regresión lineal
+│   └── neural_network.cpp   # Ejemplo 3: Clasificador de red neuronal
+├── include/                 # Archivos de cabecera (si es necesario)
+└── src/                     # Archivos fuente (si es necesario)
 ```
 
-## TensorFlow C++ API Key Concepts
+## Conceptos Clave de la API TensorFlow C++
 
-### Scope
-The `Scope` class defines a namespace for operations. It helps organize the computational graph.
+### Scope (Ámbito)
+La clase `Scope` define un espacio de nombres para las operaciones. Ayuda a organizar el grafo computacional.
 
 ```cpp
 Scope root = Scope::NewRootScope();
 ```
 
-### Operations
-Operations are the nodes in the computational graph:
+### Operaciones
+Las operaciones son los nodos en el grafo computacional:
 
 ```cpp
-auto a = Const(root, 5.0f);      // Constant
-auto b = Placeholder(root, DT_FLOAT);  // Placeholder for input
-auto c = Add(root, a, b);        // Addition operation
+auto a = Const(root, 5.0f);      // Constante
+auto b = Placeholder(root, DT_FLOAT);  // Marcador de posición para entrada
+auto c = Add(root, a, b);        // Operación de suma
 ```
 
-### Session
-The `ClientSession` executes operations in the graph:
+### Sesión
+El `ClientSession` ejecuta las operaciones en el grafo:
 
 ```cpp
 ClientSession session(root);
@@ -254,8 +254,8 @@ std::vector<Tensor> outputs;
 session.Run({c}, &outputs);
 ```
 
-### Tensors
-Tensors are multi-dimensional arrays:
+### Tensores
+Los tensores son arreglos multidimensionales:
 
 ```cpp
 Tensor tensor(DT_FLOAT, TensorShape({3, 4}));
@@ -263,28 +263,28 @@ auto matrix = tensor.matrix<float>();
 matrix(0, 0) = 1.0f;
 ```
 
-## Troubleshooting
+## Solución de Problemas
 
-### Common Issues
+### Problemas Comunes
 
-1. **TensorFlow not found**
-   - Ensure `TENSORFLOW_DIR` is set correctly
-   - Check that `libtensorflow_cc.so` exists in the lib directory
+1. **TensorFlow no encontrado**
+   - Asegúrate de que `TENSORFLOW_DIR` esté configurado correctamente
+   - Verifica que `libtensorflow_cc.so` exista en el directorio lib
 
-2. **Missing headers**
-   - Verify TensorFlow include path is correct
-   - Ensure you have the full TensorFlow C++ headers (not just C API)
+2. **Cabeceras faltantes**
+   - Verifica que la ruta de inclusión de TensorFlow sea correcta
+   - Asegúrate de tener las cabeceras completas de TensorFlow C++ (no solo la API de C)
 
-3. **Linking errors**
-   - Add TensorFlow lib path to `LD_LIBRARY_PATH`:
+3. **Errores de enlace**
+   - Agrega la ruta de la biblioteca TensorFlow a `LD_LIBRARY_PATH`:
      ```bash
      export LD_LIBRARY_PATH=$TENSORFLOW_DIR/lib:$LD_LIBRARY_PATH
      ```
 
-4. **Runtime errors**
-   - Ensure you're using compatible TensorFlow version
-   - Check CUDA/cuDNN compatibility if using GPU
+4. **Errores en tiempo de ejecución**
+   - Asegúrate de usar una versión compatible de TensorFlow
+   - Verifica la compatibilidad de CUDA/cuDNN si usas GPU
 
-## License
+## Licencia
 
-This project is for educational purposes as part of a final programming project.
+Este proyecto es con fines educativos como parte de un proyecto final de programación.

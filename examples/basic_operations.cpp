@@ -1,16 +1,16 @@
 /**
  * @file basic_operations.cpp
- * @brief Example 1: Basic TensorFlow C++ Operations
+ * @brief Ejemplo 1: Operaciones Básicas de TensorFlow C++
  * 
- * This example demonstrates fundamental TensorFlow C++ operations including:
- * - Creating and initializing a TensorFlow session
- * - Creating tensors (constants)
- * - Performing basic mathematical operations
- * - Working with tensor shapes and data types
+ * Este ejemplo demuestra operaciones fundamentales de TensorFlow C++ incluyendo:
+ * - Creación e inicialización de una sesión de TensorFlow
+ * - Creación de tensores (constantes)
+ * - Realización de operaciones matemáticas básicas
+ * - Trabajo con formas y tipos de datos de tensores
  * 
- * TensorFlow C++ API provides low-level access to TensorFlow's computational
- * graph functionality, allowing for efficient execution of machine learning
- * and numerical computation tasks.
+ * La API de TensorFlow C++ proporciona acceso de bajo nivel a la funcionalidad
+ * del grafo computacional de TensorFlow, permitiendo la ejecución eficiente de
+ * tareas de aprendizaje automático y computación numérica.
  */
 
 #include <iostream>
@@ -23,243 +23,243 @@ using namespace tensorflow;
 using namespace tensorflow::ops;
 
 /**
- * @brief Demonstrates creation and manipulation of scalar tensors
- * @param root The TensorFlow scope for operations
- * @param session The client session to run operations
+ * @brief Demuestra la creación y manipulación de tensores escalares
+ * @param root El ámbito de TensorFlow para las operaciones
+ * @param session La sesión del cliente para ejecutar operaciones
  */
-void demonstrateScalarOperations(Scope& root, ClientSession& session) {
-    std::cout << "\n=== Scalar Operations ===" << std::endl;
+void demostrarOperacionesEscalares(Scope& root, ClientSession& session) {
+    std::cout << "\n=== Operaciones Escalares ===" << std::endl;
     
-    // Create scalar constants
+    // Crear constantes escalares
     auto a = Const(root, 5.0f);
     auto b = Const(root, 3.0f);
     
-    // Perform arithmetic operations
-    auto sum = Add(root, a, b);
-    auto diff = Sub(root, a, b);
-    auto prod = Mul(root, a, b);
-    auto quot = Div(root, a, b);
+    // Realizar operaciones aritméticas
+    auto suma = Add(root, a, b);
+    auto resta = Sub(root, a, b);
+    auto producto = Mul(root, a, b);
+    auto cociente = Div(root, a, b);
     
-    // Run the operations
-    std::vector<Tensor> outputs;
+    // Ejecutar las operaciones
+    std::vector<Tensor> salidas;
     
-    TF_CHECK_OK(session.Run({sum, diff, prod, quot}, &outputs));
+    TF_CHECK_OK(session.Run({suma, resta, producto, cociente}, &salidas));
     
     std::cout << "a = 5.0, b = 3.0" << std::endl;
-    std::cout << "a + b = " << outputs[0].scalar<float>()() << std::endl;
-    std::cout << "a - b = " << outputs[1].scalar<float>()() << std::endl;
-    std::cout << "a * b = " << outputs[2].scalar<float>()() << std::endl;
-    std::cout << "a / b = " << outputs[3].scalar<float>()() << std::endl;
+    std::cout << "a + b = " << salidas[0].scalar<float>()() << std::endl;
+    std::cout << "a - b = " << salidas[1].scalar<float>()() << std::endl;
+    std::cout << "a * b = " << salidas[2].scalar<float>()() << std::endl;
+    std::cout << "a / b = " << salidas[3].scalar<float>()() << std::endl;
 }
 
 /**
- * @brief Demonstrates vector and matrix tensor operations
- * @param root The TensorFlow scope for operations
- * @param session The client session to run operations
+ * @brief Demuestra operaciones de tensores vectoriales y matriciales
+ * @param root El ámbito de TensorFlow para las operaciones
+ * @param session La sesión del cliente para ejecutar operaciones
  */
-void demonstrateVectorOperations(Scope& root, ClientSession& session) {
-    std::cout << "\n=== Vector Operations ===" << std::endl;
+void demostrarOperacionesVectoriales(Scope& root, ClientSession& session) {
+    std::cout << "\n=== Operaciones Vectoriales ===" << std::endl;
     
-    // Create vector tensors
+    // Crear tensores vectoriales
     auto vec1 = Const(root, {{1.0f, 2.0f, 3.0f}});
     auto vec2 = Const(root, {{4.0f, 5.0f, 6.0f}});
     
-    // Element-wise operations
-    auto vec_sum = Add(root, vec1, vec2);
-    auto vec_prod = Mul(root, vec1, vec2);
+    // Operaciones elemento a elemento
+    auto suma_vec = Add(root, vec1, vec2);
+    auto prod_vec = Mul(root, vec1, vec2);
     
-    // Run operations
-    std::vector<Tensor> outputs;
-    TF_CHECK_OK(session.Run({vec_sum, vec_prod}, &outputs));
+    // Ejecutar operaciones
+    std::vector<Tensor> salidas;
+    TF_CHECK_OK(session.Run({suma_vec, prod_vec}, &salidas));
     
     std::cout << "vec1 = [1, 2, 3]" << std::endl;
     std::cout << "vec2 = [4, 5, 6]" << std::endl;
     
-    // Print results
-    auto sum_data = outputs[0].flat<float>();
+    // Imprimir resultados
+    auto datos_suma = salidas[0].flat<float>();
     std::cout << "vec1 + vec2 = [";
-    for (int i = 0; i < sum_data.size(); ++i) {
-        std::cout << sum_data(i);
-        if (i < sum_data.size() - 1) std::cout << ", ";
+    for (int i = 0; i < datos_suma.size(); ++i) {
+        std::cout << datos_suma(i);
+        if (i < datos_suma.size() - 1) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     
-    auto prod_data = outputs[1].flat<float>();
+    auto datos_prod = salidas[1].flat<float>();
     std::cout << "vec1 * vec2 = [";
-    for (int i = 0; i < prod_data.size(); ++i) {
-        std::cout << prod_data(i);
-        if (i < prod_data.size() - 1) std::cout << ", ";
+    for (int i = 0; i < datos_prod.size(); ++i) {
+        std::cout << datos_prod(i);
+        if (i < datos_prod.size() - 1) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
 }
 
 /**
- * @brief Demonstrates matrix operations including multiplication
- * @param root The TensorFlow scope for operations
- * @param session The client session to run operations
+ * @brief Demuestra operaciones matriciales incluyendo multiplicación
+ * @param root El ámbito de TensorFlow para las operaciones
+ * @param session La sesión del cliente para ejecutar operaciones
  */
-void demonstrateMatrixOperations(Scope& root, ClientSession& session) {
-    std::cout << "\n=== Matrix Operations ===" << std::endl;
+void demostrarOperacionesMatriciales(Scope& root, ClientSession& session) {
+    std::cout << "\n=== Operaciones Matriciales ===" << std::endl;
     
-    // Create 2x2 matrices
+    // Crear matrices 2x2
     auto mat1 = Const(root, {{1.0f, 2.0f}, {3.0f, 4.0f}});
     auto mat2 = Const(root, {{5.0f, 6.0f}, {7.0f, 8.0f}});
     
-    // Matrix multiplication
-    auto mat_mul = MatMul(root, mat1, mat2);
+    // Multiplicación de matrices
+    auto mult_mat = MatMul(root, mat1, mat2);
     
-    // Element-wise addition
-    auto mat_add = Add(root, mat1, mat2);
+    // Suma elemento a elemento
+    auto suma_mat = Add(root, mat1, mat2);
     
-    // Transpose
-    auto mat_transpose = Transpose(root, mat1, {1, 0});
+    // Transpuesta
+    auto transpuesta_mat = Transpose(root, mat1, {1, 0});
     
-    // Run operations
-    std::vector<Tensor> outputs;
-    TF_CHECK_OK(session.Run({mat_mul, mat_add, mat_transpose}, &outputs));
+    // Ejecutar operaciones
+    std::vector<Tensor> salidas;
+    TF_CHECK_OK(session.Run({mult_mat, suma_mat, transpuesta_mat}, &salidas));
     
     std::cout << "mat1 = [[1, 2], [3, 4]]" << std::endl;
     std::cout << "mat2 = [[5, 6], [7, 8]]" << std::endl;
     
-    // Print matrix multiplication result
-    std::cout << "\nmat1 @ mat2 (matrix multiplication) = " << std::endl;
-    auto mul_data = outputs[0].matrix<float>();
-    std::cout << "  [[" << mul_data(0, 0) << ", " << mul_data(0, 1) << "]," << std::endl;
-    std::cout << "   [" << mul_data(1, 0) << ", " << mul_data(1, 1) << "]]" << std::endl;
+    // Imprimir resultado de multiplicación de matrices
+    std::cout << "\nmat1 @ mat2 (multiplicación de matrices) = " << std::endl;
+    auto datos_mult = salidas[0].matrix<float>();
+    std::cout << "  [[" << datos_mult(0, 0) << ", " << datos_mult(0, 1) << "]," << std::endl;
+    std::cout << "   [" << datos_mult(1, 0) << ", " << datos_mult(1, 1) << "]]" << std::endl;
     
-    // Print element-wise addition result
-    std::cout << "\nmat1 + mat2 (element-wise) = " << std::endl;
-    auto add_data = outputs[1].matrix<float>();
-    std::cout << "  [[" << add_data(0, 0) << ", " << add_data(0, 1) << "]," << std::endl;
-    std::cout << "   [" << add_data(1, 0) << ", " << add_data(1, 1) << "]]" << std::endl;
+    // Imprimir resultado de suma elemento a elemento
+    std::cout << "\nmat1 + mat2 (elemento a elemento) = " << std::endl;
+    auto datos_suma = salidas[1].matrix<float>();
+    std::cout << "  [[" << datos_suma(0, 0) << ", " << datos_suma(0, 1) << "]," << std::endl;
+    std::cout << "   [" << datos_suma(1, 0) << ", " << datos_suma(1, 1) << "]]" << std::endl;
     
-    // Print transpose result
-    std::cout << "\nTranspose(mat1) = " << std::endl;
-    auto trans_data = outputs[2].matrix<float>();
-    std::cout << "  [[" << trans_data(0, 0) << ", " << trans_data(0, 1) << "]," << std::endl;
-    std::cout << "   [" << trans_data(1, 0) << ", " << trans_data(1, 1) << "]]" << std::endl;
+    // Imprimir resultado de transpuesta
+    std::cout << "\nTranspuesta(mat1) = " << std::endl;
+    auto datos_trans = salidas[2].matrix<float>();
+    std::cout << "  [[" << datos_trans(0, 0) << ", " << datos_trans(0, 1) << "]," << std::endl;
+    std::cout << "   [" << datos_trans(1, 0) << ", " << datos_trans(1, 1) << "]]" << std::endl;
 }
 
 /**
- * @brief Demonstrates tensor shape manipulation
- * @param root The TensorFlow scope for operations
- * @param session The client session to run operations
+ * @brief Demuestra manipulación de formas de tensores
+ * @param root El ámbito de TensorFlow para las operaciones
+ * @param session La sesión del cliente para ejecutar operaciones
  */
-void demonstrateTensorShapes(Scope& root, ClientSession& session) {
-    std::cout << "\n=== Tensor Shapes ===" << std::endl;
+void demostrarFormasTensores(Scope& root, ClientSession& session) {
+    std::cout << "\n=== Formas de Tensores ===" << std::endl;
     
-    // Create a tensor with specific shape
+    // Crear un tensor con forma específica
     auto tensor_3x4 = Const(root, {
         {1.0f, 2.0f, 3.0f, 4.0f},
         {5.0f, 6.0f, 7.0f, 8.0f},
         {9.0f, 10.0f, 11.0f, 12.0f}
     });
     
-    // Reshape operation
-    auto reshaped_2x6 = Reshape(root, tensor_3x4, {2, 6});
-    auto reshaped_6x2 = Reshape(root, tensor_3x4, {6, 2});
-    auto flattened = Reshape(root, tensor_3x4, {-1});
+    // Operación de redimensionamiento
+    auto redim_2x6 = Reshape(root, tensor_3x4, {2, 6});
+    auto redim_6x2 = Reshape(root, tensor_3x4, {6, 2});
+    auto aplanado = Reshape(root, tensor_3x4, {-1});
     
-    // Get shapes
-    auto original_shape = Shape(root, tensor_3x4);
-    auto new_shape = Shape(root, reshaped_2x6);
+    // Obtener formas
+    auto forma_original = Shape(root, tensor_3x4);
+    auto forma_nueva = Shape(root, redim_2x6);
     
-    std::vector<Tensor> outputs;
-    TF_CHECK_OK(session.Run({tensor_3x4, reshaped_2x6, reshaped_6x2, flattened, 
-                             original_shape, new_shape}, &outputs));
+    std::vector<Tensor> salidas;
+    TF_CHECK_OK(session.Run({tensor_3x4, redim_2x6, redim_6x2, aplanado, 
+                             forma_original, forma_nueva}, &salidas));
     
-    std::cout << "Original tensor (3x4):" << std::endl;
-    auto orig_data = outputs[0].matrix<float>();
+    std::cout << "Tensor original (3x4):" << std::endl;
+    auto datos_orig = salidas[0].matrix<float>();
     for (int i = 0; i < 3; ++i) {
         std::cout << "  [";
         for (int j = 0; j < 4; ++j) {
-            std::cout << orig_data(i, j);
+            std::cout << datos_orig(i, j);
             if (j < 3) std::cout << ", ";
         }
         std::cout << "]" << std::endl;
     }
     
-    std::cout << "\nReshaped to (2x6):" << std::endl;
-    auto reshape_data = outputs[1].matrix<float>();
+    std::cout << "\nRedimensionado a (2x6):" << std::endl;
+    auto datos_redim = salidas[1].matrix<float>();
     for (int i = 0; i < 2; ++i) {
         std::cout << "  [";
         for (int j = 0; j < 6; ++j) {
-            std::cout << reshape_data(i, j);
+            std::cout << datos_redim(i, j);
             if (j < 5) std::cout << ", ";
         }
         std::cout << "]" << std::endl;
     }
     
-    std::cout << "\nFlattened (12 elements):" << std::endl;
-    auto flat_data = outputs[3].flat<float>();
+    std::cout << "\nAplanado (12 elementos):" << std::endl;
+    auto datos_planos = salidas[3].flat<float>();
     std::cout << "  [";
     for (int i = 0; i < 12; ++i) {
-        std::cout << flat_data(i);
+        std::cout << datos_planos(i);
         if (i < 11) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
 }
 
 /**
- * @brief Demonstrates mathematical functions (sin, cos, exp, log)
- * @param root The TensorFlow scope for operations
- * @param session The client session to run operations
+ * @brief Demuestra funciones matemáticas (sin, cos, exp, log)
+ * @param root El ámbito de TensorFlow para las operaciones
+ * @param session La sesión del cliente para ejecutar operaciones
  */
-void demonstrateMathFunctions(Scope& root, ClientSession& session) {
-    std::cout << "\n=== Mathematical Functions ===" << std::endl;
+void demostrarFuncionesMatematicas(Scope& root, ClientSession& session) {
+    std::cout << "\n=== Funciones Matemáticas ===" << std::endl;
     
-    // Create input values
+    // Crear valores de entrada
     auto x = Const(root, {{0.0f, 0.5f, 1.0f, 1.5f, 2.0f}});
     
-    // Apply mathematical functions
+    // Aplicar funciones matemáticas
     auto sin_x = Sin(root, x);
     auto cos_x = Cos(root, x);
     auto exp_x = Exp(root, x);
-    auto sqrt_x = Sqrt(root, Add(root, x, Const(root, 1.0f))); // sqrt(x+1) to avoid sqrt(0)
+    auto sqrt_x = Sqrt(root, Add(root, x, Const(root, 1.0f))); // sqrt(x+1) para evitar sqrt(0)
     
-    std::vector<Tensor> outputs;
-    TF_CHECK_OK(session.Run({x, sin_x, cos_x, exp_x, sqrt_x}, &outputs));
+    std::vector<Tensor> salidas;
+    TF_CHECK_OK(session.Run({x, sin_x, cos_x, exp_x, sqrt_x}, &salidas));
     
-    auto x_data = outputs[0].flat<float>();
-    auto sin_data = outputs[1].flat<float>();
-    auto cos_data = outputs[2].flat<float>();
-    auto exp_data = outputs[3].flat<float>();
-    auto sqrt_data = outputs[4].flat<float>();
+    auto datos_x = salidas[0].flat<float>();
+    auto datos_sin = salidas[1].flat<float>();
+    auto datos_cos = salidas[2].flat<float>();
+    auto datos_exp = salidas[3].flat<float>();
+    auto datos_sqrt = salidas[4].flat<float>();
     
     std::cout << std::fixed;
     std::cout.precision(4);
     
-    std::cout << "x values: [";
+    std::cout << "valores x: [";
     for (int i = 0; i < 5; ++i) {
-        std::cout << x_data(i);
+        std::cout << datos_x(i);
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     
-    std::cout << "sin(x):   [";
+    std::cout << "sin(x):    [";
     for (int i = 0; i < 5; ++i) {
-        std::cout << sin_data(i);
+        std::cout << datos_sin(i);
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     
-    std::cout << "cos(x):   [";
+    std::cout << "cos(x):    [";
     for (int i = 0; i < 5; ++i) {
-        std::cout << cos_data(i);
+        std::cout << datos_cos(i);
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     
-    std::cout << "exp(x):   [";
+    std::cout << "exp(x):    [";
     for (int i = 0; i < 5; ++i) {
-        std::cout << exp_data(i);
+        std::cout << datos_exp(i);
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
     
-    std::cout << "sqrt(x+1):[";
+    std::cout << "sqrt(x+1): [";
     for (int i = 0; i < 5; ++i) {
-        std::cout << sqrt_data(i);
+        std::cout << datos_sqrt(i);
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
@@ -267,31 +267,31 @@ void demonstrateMathFunctions(Scope& root, ClientSession& session) {
 
 int main() {
     std::cout << "==========================================" << std::endl;
-    std::cout << "  TensorFlow C++ Basic Operations Demo   " << std::endl;
+    std::cout << "  Demo de Operaciones Básicas TensorFlow C++" << std::endl;
     std::cout << "==========================================" << std::endl;
     
-    // Create a root scope for TensorFlow operations
+    // Crear un ámbito raíz para las operaciones de TensorFlow
     Scope root = Scope::NewRootScope();
     
-    // Check if scope creation was successful
+    // Verificar si la creación del ámbito fue exitosa
     if (!root.ok()) {
-        std::cerr << "Error creating TensorFlow scope: " << root.status().ToString() << std::endl;
+        std::cerr << "Error al crear el ámbito de TensorFlow: " << root.status().ToString() << std::endl;
         return 1;
     }
     
-    // Create a client session to run operations
+    // Crear una sesión de cliente para ejecutar operaciones
     ClientSession session(root);
     
     try {
-        // Run all demonstrations
-        demonstrateScalarOperations(root, session);
-        demonstrateVectorOperations(root, session);
-        demonstrateMatrixOperations(root, session);
-        demonstrateTensorShapes(root, session);
-        demonstrateMathFunctions(root, session);
+        // Ejecutar todas las demostraciones
+        demostrarOperacionesEscalares(root, session);
+        demostrarOperacionesVectoriales(root, session);
+        demostrarOperacionesMatriciales(root, session);
+        demostrarFormasTensores(root, session);
+        demostrarFuncionesMatematicas(root, session);
         
         std::cout << "\n==========================================" << std::endl;
-        std::cout << "  All demonstrations completed successfully!" << std::endl;
+        std::cout << "  ¡Todas las demostraciones completadas exitosamente!" << std::endl;
         std::cout << "==========================================" << std::endl;
         
     } catch (const std::exception& e) {
