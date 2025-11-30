@@ -1,17 +1,17 @@
 /**
  * @file linear_regression.cpp
- * @brief Example 2: Linear Regression using TensorFlow C++
+ * @brief Ejemplo 2: Regresión Lineal usando TensorFlow C++
  * 
- * This example demonstrates how to implement a simple linear regression
- * model using TensorFlow's C++ API. The model learns to fit a line
- * y = mx + b to a set of training data points.
+ * Este ejemplo demuestra cómo implementar un modelo simple de regresión
+ * lineal usando la API de TensorFlow C++. El modelo aprende a ajustar una línea
+ * y = mx + b a un conjunto de puntos de datos de entrenamiento.
  * 
- * Key concepts demonstrated:
- * - Creating variables (trainable parameters)
- * - Defining a loss function (Mean Squared Error)
- * - Computing gradients
- * - Implementing gradient descent optimization
- * - Training loop implementation
+ * Conceptos clave demostrados:
+ * - Creación de variables (parámetros entrenables)
+ * - Definición de una función de pérdida (Error Cuadrático Medio)
+ * - Cálculo de gradientes
+ * - Implementación de optimización por descenso de gradiente
+ * - Implementación del bucle de entrenamiento
  */
 
 #include <iostream>
@@ -27,202 +27,202 @@ using namespace tensorflow;
 using namespace tensorflow::ops;
 
 /**
- * @brief Generates synthetic training data for linear regression
+ * @brief Genera datos de entrenamiento sintéticos para regresión lineal
  * 
- * Generates data points following y = true_slope * x + true_intercept + noise
+ * Genera puntos de datos siguiendo y = pendiente_real * x + intercepto_real + ruido
  * 
- * @param num_samples Number of data points to generate
- * @param true_slope The actual slope of the line
- * @param true_intercept The actual y-intercept
- * @param noise_level Standard deviation of Gaussian noise
- * @param x_data Output vector for x values
- * @param y_data Output vector for y values
+ * @param num_muestras Número de puntos de datos a generar
+ * @param pendiente_real La pendiente real de la línea
+ * @param intercepto_real El intercepto real en y
+ * @param nivel_ruido Desviación estándar del ruido Gaussiano
+ * @param datos_x Vector de salida para valores x
+ * @param datos_y Vector de salida para valores y
  */
-void generateTrainingData(int num_samples, float true_slope, float true_intercept,
-                          float noise_level, std::vector<float>& x_data, 
-                          std::vector<float>& y_data) {
+void generarDatosEntrenamiento(int num_muestras, float pendiente_real, float intercepto_real,
+                               float nivel_ruido, std::vector<float>& datos_x, 
+                               std::vector<float>& datos_y) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<float> noise(0.0f, noise_level);
-    std::uniform_real_distribution<float> x_dist(0.0f, 10.0f);
+    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
+    std::uniform_real_distribution<float> dist_x(0.0f, 10.0f);
     
-    x_data.resize(num_samples);
-    y_data.resize(num_samples);
+    datos_x.resize(num_muestras);
+    datos_y.resize(num_muestras);
     
-    for (int i = 0; i < num_samples; ++i) {
-        x_data[i] = x_dist(gen);
-        y_data[i] = true_slope * x_data[i] + true_intercept + noise(gen);
+    for (int i = 0; i < num_muestras; ++i) {
+        datos_x[i] = dist_x(gen);
+        datos_y[i] = pendiente_real * datos_x[i] + intercepto_real + ruido(gen);
     }
 }
 
 /**
- * @brief Creates a tensor from a vector of floats
- * @param data The input vector
- * @return A TensorFlow tensor containing the data
+ * @brief Crea un tensor a partir de un vector de flotantes
+ * @param datos El vector de entrada
+ * @return Un tensor de TensorFlow conteniendo los datos
  */
-Tensor createTensor(const std::vector<float>& data) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(data.size()), 1}));
-    auto tensor_map = tensor.matrix<float>();
-    for (size_t i = 0; i < data.size(); ++i) {
-        tensor_map(i, 0) = data[i];
+Tensor crearTensor(const std::vector<float>& datos) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos.size(); ++i) {
+        mapa_tensor(i, 0) = datos[i];
     }
     return tensor;
 }
 
 /**
- * @brief Main linear regression demonstration
+ * @brief Demostración principal de regresión lineal
  */
 int main() {
     std::cout << "==========================================" << std::endl;
-    std::cout << "  TensorFlow C++ Linear Regression Demo  " << std::endl;
+    std::cout << "  Demo de Regresión Lineal TensorFlow C++" << std::endl;
     std::cout << "==========================================" << std::endl;
     
-    // Ground truth parameters (we'll try to learn these)
-    const float TRUE_SLOPE = 2.5f;
-    const float TRUE_INTERCEPT = 1.0f;
-    const float NOISE_LEVEL = 0.5f;
-    const int NUM_SAMPLES = 100;
-    const int NUM_EPOCHS = 1000;
-    const float LEARNING_RATE = 0.01f;
+    // Parámetros de verdad base (intentaremos aprender estos)
+    const float PENDIENTE_REAL = 2.5f;
+    const float INTERCEPTO_REAL = 1.0f;
+    const float NIVEL_RUIDO = 0.5f;
+    const int NUM_MUESTRAS = 100;
+    const int NUM_EPOCAS = 1000;
+    const float TASA_APRENDIZAJE = 0.01f;
     
-    std::cout << "\n=== Data Generation ===" << std::endl;
-    std::cout << "True slope: " << TRUE_SLOPE << std::endl;
-    std::cout << "True intercept: " << TRUE_INTERCEPT << std::endl;
-    std::cout << "Noise level: " << NOISE_LEVEL << std::endl;
-    std::cout << "Number of samples: " << NUM_SAMPLES << std::endl;
+    std::cout << "\n=== Generación de Datos ===" << std::endl;
+    std::cout << "Pendiente real: " << PENDIENTE_REAL << std::endl;
+    std::cout << "Intercepto real: " << INTERCEPTO_REAL << std::endl;
+    std::cout << "Nivel de ruido: " << NIVEL_RUIDO << std::endl;
+    std::cout << "Número de muestras: " << NUM_MUESTRAS << std::endl;
     
-    // Generate training data
-    std::vector<float> x_data, y_data;
-    generateTrainingData(NUM_SAMPLES, TRUE_SLOPE, TRUE_INTERCEPT, NOISE_LEVEL,
-                         x_data, y_data);
+    // Generar datos de entrenamiento
+    std::vector<float> datos_x, datos_y;
+    generarDatosEntrenamiento(NUM_MUESTRAS, PENDIENTE_REAL, INTERCEPTO_REAL, NIVEL_RUIDO,
+                              datos_x, datos_y);
     
-    // Create tensors from data
-    Tensor x_tensor = createTensor(x_data);
-    Tensor y_tensor = createTensor(y_data);
+    // Crear tensores a partir de los datos
+    Tensor tensor_x = crearTensor(datos_x);
+    Tensor tensor_y = crearTensor(datos_y);
     
-    std::cout << "Generated " << NUM_SAMPLES << " training samples." << std::endl;
+    std::cout << "Se generaron " << NUM_MUESTRAS << " muestras de entrenamiento." << std::endl;
     
-    // Create TensorFlow scope
+    // Crear ámbito de TensorFlow
     Scope root = Scope::NewRootScope();
     
-    // Create placeholders for input data
-    auto x_placeholder = Placeholder(root.WithOpName("x"), DT_FLOAT,
+    // Crear marcadores de posición para datos de entrada
+    auto placeholder_x = Placeholder(root.WithOpName("x"), DT_FLOAT,
                                      Placeholder::Shape({-1, 1}));
-    auto y_placeholder = Placeholder(root.WithOpName("y"), DT_FLOAT,
+    auto placeholder_y = Placeholder(root.WithOpName("y"), DT_FLOAT,
                                      Placeholder::Shape({-1, 1}));
     
-    // Create trainable variables (initialized with random values)
-    // Weight (slope)
+    // Crear variables entrenables (inicializadas con valores aleatorios)
+    // Peso (pendiente)
     auto w_init = Variable(root.WithOpName("w"), {1, 1}, DT_FLOAT);
     auto w_assign = Assign(root.WithOpName("w_assign"), w_init, 
                           RandomNormal(root, {1, 1}, DT_FLOAT));
     
-    // Bias (intercept)
+    // Sesgo (intercepto)
     auto b_init = Variable(root.WithOpName("b"), {1, 1}, DT_FLOAT);
     auto b_assign = Assign(root.WithOpName("b_assign"), b_init,
                           RandomNormal(root, {1, 1}, DT_FLOAT));
     
-    // Model: y_pred = x * w + b
-    auto y_pred = Add(root.WithOpName("prediction"),
-                     MatMul(root, x_placeholder, w_init),
+    // Modelo: y_pred = x * w + b
+    auto y_pred = Add(root.WithOpName("prediccion"),
+                     MatMul(root, placeholder_x, w_init),
                      b_init);
     
-    // Loss function: Mean Squared Error = mean((y_pred - y)^2)
-    auto error = Sub(root, y_pred, y_placeholder);
-    auto squared_error = Square(root, error);
-    auto loss = Mean(root.WithOpName("loss"), squared_error, {0, 1});
+    // Función de pérdida: Error Cuadrático Medio = media((y_pred - y)^2)
+    auto error = Sub(root, y_pred, placeholder_y);
+    auto error_cuadrado = Square(root, error);
+    auto perdida = Mean(root.WithOpName("perdida"), error_cuadrado, {0, 1});
     
-    // Compute gradients manually
-    // d(loss)/dw = 2 * mean(error * x)
-    // d(loss)/db = 2 * mean(error)
+    // Calcular gradientes manualmente
+    // d(perdida)/dw = 2 * media(error * x)
+    // d(perdida)/db = 2 * media(error)
     auto grad_w = Mul(root, 
                      Const(root, 2.0f),
-                     Mean(root, Mul(root, error, x_placeholder), {0}));
+                     Mean(root, Mul(root, error, placeholder_x), {0}));
     auto grad_b = Mul(root,
                      Const(root, 2.0f),
                      Mean(root, error, {0}));
     
-    // Gradient descent update
-    auto lr = Const(root, LEARNING_RATE);
+    // Actualización por descenso de gradiente
+    auto lr = Const(root, TASA_APRENDIZAJE);
     auto w_update = AssignSub(root, w_init, Mul(root, lr, grad_w));
     auto b_update = AssignSub(root, b_init, Mul(root, lr, grad_b));
     
-    // Create session
+    // Crear sesión
     ClientSession session(root);
     
-    // Initialize variables
+    // Inicializar variables
     TF_CHECK_OK(session.Run({w_assign, b_assign}, nullptr));
     
-    std::cout << "\n=== Training ===" << std::endl;
-    std::cout << "Learning rate: " << LEARNING_RATE << std::endl;
-    std::cout << "Number of epochs: " << NUM_EPOCHS << std::endl;
+    std::cout << "\n=== Entrenamiento ===" << std::endl;
+    std::cout << "Tasa de aprendizaje: " << TASA_APRENDIZAJE << std::endl;
+    std::cout << "Número de épocas: " << NUM_EPOCAS << std::endl;
     std::cout << std::fixed << std::setprecision(4);
     
-    // Training loop
-    std::vector<Tensor> outputs;
-    for (int epoch = 0; epoch < NUM_EPOCHS; ++epoch) {
-        // Run training step
+    // Bucle de entrenamiento
+    std::vector<Tensor> salidas;
+    for (int epoca = 0; epoca < NUM_EPOCAS; ++epoca) {
+        // Ejecutar paso de entrenamiento
         TF_CHECK_OK(session.Run(
-            {{x_placeholder, x_tensor}, {y_placeholder, y_tensor}},
-            {loss, w_update, b_update},
-            &outputs));
+            {{placeholder_x, tensor_x}, {placeholder_y, tensor_y}},
+            {perdida, w_update, b_update},
+            &salidas));
         
-        // Print progress every 100 epochs
-        if (epoch % 100 == 0 || epoch == NUM_EPOCHS - 1) {
-            float current_loss = outputs[0].scalar<float>()();
-            std::cout << "Epoch " << std::setw(4) << epoch 
-                      << " | Loss: " << current_loss << std::endl;
+        // Imprimir progreso cada 100 épocas
+        if (epoca % 100 == 0 || epoca == NUM_EPOCAS - 1) {
+            float perdida_actual = salidas[0].scalar<float>()();
+            std::cout << "Época " << std::setw(4) << epoca 
+                      << " | Pérdida: " << perdida_actual << std::endl;
         }
     }
     
-    // Get final learned parameters
-    std::vector<Tensor> final_params;
-    TF_CHECK_OK(session.Run({w_init, b_init}, &final_params));
+    // Obtener parámetros aprendidos finales
+    std::vector<Tensor> params_finales;
+    TF_CHECK_OK(session.Run({w_init, b_init}, &params_finales));
     
-    float learned_slope = final_params[0].matrix<float>()(0, 0);
-    float learned_intercept = final_params[1].matrix<float>()(0, 0);
+    float pendiente_aprendida = params_finales[0].matrix<float>()(0, 0);
+    float intercepto_aprendido = params_finales[1].matrix<float>()(0, 0);
     
-    std::cout << "\n=== Results ===" << std::endl;
-    std::cout << "Learned slope:     " << learned_slope 
-              << " (true: " << TRUE_SLOPE << ")" << std::endl;
-    std::cout << "Learned intercept: " << learned_intercept 
-              << " (true: " << TRUE_INTERCEPT << ")" << std::endl;
+    std::cout << "\n=== Resultados ===" << std::endl;
+    std::cout << "Pendiente aprendida:     " << pendiente_aprendida 
+              << " (real: " << PENDIENTE_REAL << ")" << std::endl;
+    std::cout << "Intercepto aprendido: " << intercepto_aprendido 
+              << " (real: " << INTERCEPTO_REAL << ")" << std::endl;
     
-    // Calculate error
-    float slope_error = std::abs(learned_slope - TRUE_SLOPE);
-    float intercept_error = std::abs(learned_intercept - TRUE_INTERCEPT);
+    // Calcular error
+    float error_pendiente = std::abs(pendiente_aprendida - PENDIENTE_REAL);
+    float error_intercepto = std::abs(intercepto_aprendido - INTERCEPTO_REAL);
     
-    std::cout << "\nError in slope:     " << slope_error << std::endl;
-    std::cout << "Error in intercept: " << intercept_error << std::endl;
+    std::cout << "\nError en pendiente:     " << error_pendiente << std::endl;
+    std::cout << "Error en intercepto: " << error_intercepto << std::endl;
     
-    // Make predictions on new data
-    std::cout << "\n=== Predictions ===" << std::endl;
-    std::cout << "Testing on new x values:" << std::endl;
+    // Hacer predicciones con nuevos datos
+    std::cout << "\n=== Predicciones ===" << std::endl;
+    std::cout << "Probando con nuevos valores de x:" << std::endl;
     
     std::vector<float> test_x = {0.0f, 2.5f, 5.0f, 7.5f, 10.0f};
-    Tensor test_tensor = createTensor(test_x);
+    Tensor tensor_test = crearTensor(test_x);
     
-    std::vector<Tensor> predictions;
+    std::vector<Tensor> predicciones;
     TF_CHECK_OK(session.Run(
-        {{x_placeholder, test_tensor}},
+        {{placeholder_x, tensor_test}},
         {y_pred},
-        &predictions));
+        &predicciones));
     
-    auto pred_data = predictions[0].matrix<float>();
+    auto datos_pred = predicciones[0].matrix<float>();
     std::cout << std::setw(8) << "x" << " | " 
-              << std::setw(12) << "Predicted" << " | "
-              << std::setw(12) << "True" << std::endl;
+              << std::setw(12) << "Predicho" << " | "
+              << std::setw(12) << "Real" << std::endl;
     std::cout << std::string(40, '-') << std::endl;
     
     for (size_t i = 0; i < test_x.size(); ++i) {
-        float true_y = TRUE_SLOPE * test_x[i] + TRUE_INTERCEPT;
+        float y_real = PENDIENTE_REAL * test_x[i] + INTERCEPTO_REAL;
         std::cout << std::setw(8) << test_x[i] << " | "
-                  << std::setw(12) << pred_data(i, 0) << " | "
-                  << std::setw(12) << true_y << std::endl;
+                  << std::setw(12) << datos_pred(i, 0) << " | "
+                  << std::setw(12) << y_real << std::endl;
     }
     
     std::cout << "\n==========================================" << std::endl;
-    std::cout << "  Linear regression completed successfully!" << std::endl;
+    std::cout << "  ¡Regresión lineal completada exitosamente!" << std::endl;
     std::cout << "==========================================" << std::endl;
     
     return 0;

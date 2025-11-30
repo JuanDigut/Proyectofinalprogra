@@ -1,45 +1,45 @@
 cmake_minimum_required(VERSION 3.16)
 project(TensorFlowCppExamples VERSION 1.0.0 LANGUAGES CXX)
 
-# Set C++ standard
+# Establecer el estándar de C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable export of compile commands for IDE support
+# Habilitar exportación de comandos de compilación para soporte de IDE
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Find TensorFlow C++ library
-# The user needs to set TENSORFLOW_DIR to the TensorFlow installation directory
-# or install TensorFlow system-wide
+# Buscar la biblioteca TensorFlow C++
+# El usuario necesita establecer TENSORFLOW_DIR al directorio de instalación de TensorFlow
+# o instalar TensorFlow a nivel de sistema
 if(DEFINED ENV{TENSORFLOW_DIR})
     set(TENSORFLOW_DIR $ENV{TENSORFLOW_DIR})
 endif()
 
 if(TENSORFLOW_DIR)
-    message(STATUS "Using TensorFlow from: ${TENSORFLOW_DIR}")
+    message(STATUS "Usando TensorFlow desde: ${TENSORFLOW_DIR}")
     include_directories(${TENSORFLOW_DIR}/include)
     link_directories(${TENSORFLOW_DIR}/lib)
 else()
-    # Try to find TensorFlow using pkg-config
+    # Intentar encontrar TensorFlow usando pkg-config
     find_package(PkgConfig)
     if(PkgConfig_FOUND)
         pkg_check_modules(TENSORFLOW tensorflow)
     endif()
     
     if(NOT TENSORFLOW_FOUND)
-        message(WARNING "TensorFlow not found. Please set TENSORFLOW_DIR environment variable or install TensorFlow.")
-        message(STATUS "Example: cmake -DTENSORFLOW_DIR=/path/to/tensorflow ..")
+        message(WARNING "TensorFlow no encontrado. Por favor establece la variable de entorno TENSORFLOW_DIR o instala TensorFlow.")
+        message(STATUS "Ejemplo: cmake -DTENSORFLOW_DIR=/ruta/a/tensorflow ..")
     endif()
 endif()
 
-# Add examples
+# Agregar ejemplos
 add_subdirectory(examples)
 
-# Print configuration summary
+# Imprimir resumen de configuración
 message(STATUS "")
-message(STATUS "=== TensorFlow C++ Examples Configuration ===")
-message(STATUS "CMake version: ${CMAKE_VERSION}")
-message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "=== Configuración de Ejemplos TensorFlow C++ ===")
+message(STATUS "Versión de CMake: ${CMAKE_VERSION}")
+message(STATUS "Estándar C++: ${CMAKE_CXX_STANDARD}")
+message(STATUS "Tipo de compilación: ${CMAKE_BUILD_TYPE}")
 message(STATUS "")
