@@ -6,11 +6,11 @@
  * for binary classification using TensorFlow's C++ API.
  * 
  * The example creates a 2-layer neural network to classify synthetic data
- * into two classes based on a circular decision boundary (XOR-like problem).
+ * into two classes based on an XOR-like decision boundary.
  * 
  * Key concepts demonstrated:
  * - Multi-layer neural network architecture
- * - Activation functions (Sigmoid, ReLU)
+ * - Activation functions (Sigmoid)
  * - Forward propagation
  * - Loss computation (Binary Cross-Entropy)
  * - Backpropagation with gradient descent
@@ -31,11 +31,12 @@ using namespace tensorflow;
 using namespace tensorflow::ops;
 
 /**
- * @brief Generates synthetic classification data (circular pattern)
+ * @brief Generates synthetic classification data (XOR-like pattern)
  * 
- * Creates a dataset where class 1 is in the center and class 0 surrounds it,
- * similar to a "bullseye" pattern. This tests the network's ability to
- * learn non-linear decision boundaries.
+ * Creates a dataset where class 1 corresponds to points where x1*x2 > 0
+ * (first and third quadrants), and class 0 corresponds to points where
+ * x1*x2 < 0 (second and fourth quadrants). This tests the network's 
+ * ability to learn non-linear decision boundaries.
  * 
  * @param num_samples Total number of samples
  * @param x_data Output feature matrix (num_samples x 2)
