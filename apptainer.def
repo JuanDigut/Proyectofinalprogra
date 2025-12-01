@@ -1,0 +1,53 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Author JuanDigut
+    Version 1.0
+    Description Contenedor para compilar y ejecutar ejemplos de TensorFlow C++
+
+%post
+    # Actualizar e instalar dependencias básicas
+    apt-get update && apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        curl \
+        pkg-config \
+        python3 \
+        python3-pip \
+        python3-numpy \
+        libprotobuf-dev \
+        protobuf-compiler \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Instalar TensorFlow C API (base para C++)
+    cd /tmp
+    wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
+    tar -C /usr/local -xzf libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
+    ldconfig
+    rm libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
+
+    # Configurar variables de entorno para TensorFlow
+    echo 'export TENSORFLOW_DIR=/usr/local' >> /etc/bash.bashrc
+    echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> /etc/bash.bashrc
+
+%environment
+    export TENSORFLOW_DIR=/usr/local
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+%runscript
+    echo "Contenedor de TensorFlow C++ listo para compilar y ejecutar ejemplos"
+    echo "Uso: apptainer exec tensorflow_cpp.sif <comando>"
+    exec "$@"
+
+%help
+    Este contenedor proporciona un entorno para compilar y ejecutar
+    ejemplos de TensorFlow C++.
+
+    Para compilar los ejemplos:
+        apptainer exec tensorflow_cpp.sif bash -c "cd /proyecto && mkdir -p build && cd build && cmake .. && make -j$(nproc)"
+
+    Para ejecutar un ejemplo:
+        apptainer exec tensorflow_cpp.sif /proyecto/build/examples/basic_operations
