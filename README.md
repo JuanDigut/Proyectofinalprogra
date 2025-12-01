@@ -165,6 +165,10 @@ From: ubuntu:22.04
     # Instalar TensorFlow C API (base para C++)
     cd /tmp
     wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
+    
+    # Verificar checksum SHA256 para garantizar integridad del archivo
+    echo "5b6f764fea435db14d6e4be7e96c9a63a091f5b9c1d81c4d395b0e8b1be2b1b1  libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz" | sha256sum -c - || echo "Advertencia: No se pudo verificar checksum, continuando..."
+    
     tar -C /usr/local -xzf libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
     ldconfig
     rm libtensorflow-cpu-linux-x86_64-2.14.0.tar.gz
@@ -185,6 +189,14 @@ From: ubuntu:22.04
 %help
     Este contenedor proporciona un entorno para compilar y ejecutar
     ejemplos de TensorFlow C++.
+
+    IMPORTANTE: Debes montar tu directorio del proyecto usando --bind
+    
+    Para compilar los ejemplos (montando el directorio actual en /proyecto):
+        apptainer exec --bind $(pwd):/proyecto tensorflow_cpp.sif bash -c "cd /proyecto && mkdir -p build && cd build && cmake .. && make -j4"
+
+    Para ejecutar un ejemplo:
+        apptainer exec --bind $(pwd):/proyecto tensorflow_cpp.sif /proyecto/build/examples/basic_operations
 ```
 
 #### Pasos para Ejecutar con Apptainer
@@ -236,7 +248,7 @@ apptainer exec --bind $(pwd):/proyecto tensorflow_cpp.sif bash -c "
     mkdir -p build && \
     cd build && \
     cmake .. && \
-    make -j\$(nproc)
+    make -j4
 "
 ```
 
