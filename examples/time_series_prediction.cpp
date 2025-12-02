@@ -1,20 +1,18 @@
-/**
- * @file time_series_prediction.cpp
- * @brief Ejemplo 7: Predicción de Series Temporales usando TensorFlow C++
- * 
- * Este ejemplo demuestra cómo implementar predicción de series temporales usando
- * una red neuronal feedforward con la API de TensorFlow C++.
- * 
- * El ejemplo genera datos de series temporales sintéticas (onda sinusoidal con tendencia y ruido)
- * y entrena una red neuronal para predecir el siguiente valor basándose en una ventana
- * deslizante de valores anteriores.
- * 
- * Conceptos clave demostrados:
- * - Preparación de datos de series temporales (ventana deslizante / ventaneo)
- * - Red feedforward para predicción de secuencias
- * - Métricas de regresión (EAM, RECM)
- * - Manejo de dependencias temporales con ventanas de entrada de tamaño fijo
- */
+// time_series_prediction.cpp
+// Ejemplo 7: Predicción de Series Temporales usando TensorFlow C++
+// 
+// Este ejemplo demuestra cómo implementar predicción de series temporales usando
+// una red neuronal feedforward con la API de TensorFlow C++.
+// 
+// El ejemplo genera datos de series temporales sintéticas (onda sinusoidal con tendencia y ruido)
+// y entrena una red neuronal para predecir el siguiente valor basándose en una ventana
+// deslizante de valores anteriores.
+// 
+// Conceptos clave demostrados:
+// - Preparación de datos de series temporales (ventana deslizante / ventaneo)
+// - Red feedforward para predicción de secuencias
+// - Métricas de regresión (EAM, RECM)
+// - Manejo de dependencias temporales con ventanas de entrada de tamaño fijo
 
 #include <iostream>
 #include <vector>
@@ -29,126 +27,50 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Genera datos de series temporales sintéticas
- * 
- * Crea una serie temporal: y(t) = sin(2*pi*t/periodo) + tendencia*t + ruido
- * 
- * @param longitud Número de puntos temporales
- * @param periodo Período de la onda sinusoidal
- * @param tendencia Coeficiente de tendencia lineal
- * @param nivel_ruido Desviación estándar del ruido Gaussiano
- * @param datos Vector de salida para valores de la serie temporal
- */
+// Declaraciones de funciones
+
+// Genera datos de series temporales sintéticas
+// Crea una serie temporal: y(t) = sin(2*pi*t/periodo) + tendencia*t + ruido
+// longitud: Número de puntos temporales
+// periodo: Período de la onda sinusoidal
+// tendencia: Coeficiente de tendencia lineal
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos: Vector de salida para valores de la serie temporal
 void generarSerieTemporal(int longitud, float periodo, float tendencia, 
-                          float nivel_ruido, std::vector<float>& datos) {
-    std::random_device rd;
-    std::mt19937 gen(42); // Semilla fija para reproducibilidad
-    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
-    
-    datos.clear();
-    const float PI = 3.14159265358979323846f;
-    
-    for (int t = 0; t < longitud; ++t) {
-        float valor = std::sin(2.0f * PI * t / periodo) + tendencia * t / longitud + ruido(gen);
-        datos.push_back(valor);
-    }
-}
+                          float nivel_ruido, std::vector<float>& datos);
 
-/**
- * @brief Crea características y objetivos de ventana deslizante a partir de la serie temporal
- * 
- * @param serie Serie temporal de entrada
- * @param tamano_ventana Número de puntos anteriores a usar como características
- * @param datos_x Vectores de características de salida (ventanas)
- * @param datos_y Valores objetivo de salida (siguiente valor después de cada ventana)
- */
+// Crea características y objetivos de ventana deslizante a partir de la serie temporal
+// serie: Serie temporal de entrada
+// tamano_ventana: Número de puntos anteriores a usar como características
+// datos_x: Vectores de características de salida (ventanas)
+// datos_y: Valores objetivo de salida (siguiente valor después de cada ventana)
 void crearVentanasDeslizantes(const std::vector<float>& serie, int tamano_ventana,
-                              std::vector<float>& datos_x, std::vector<float>& datos_y) {
-    datos_x.clear();
-    datos_y.clear();
-    
-    int num_ventanas = serie.size() - tamano_ventana;
-    
-    for (int i = 0; i < num_ventanas; ++i) {
-        // Características de la ventana
-        for (int j = 0; j < tamano_ventana; ++j) {
-            datos_x.push_back(serie[i + j]);
-        }
-        // Objetivo: siguiente valor después de la ventana
-        datos_y.push_back(serie[i + tamano_ventana]);
-    }
-}
+                              std::vector<float>& datos_x, std::vector<float>& datos_y);
 
-/**
- * @brief Crea un tensor 2D a partir de datos aplanados
- * @param datos Vector plano de características
- * @param num_muestras Número de muestras
- * @param num_caracteristicas Número de características por muestra
- * @return Tensor de TensorFlow
- */
+// Crea un tensor 2D a partir de datos aplanados
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
 Tensor crearTensor2D(const std::vector<float>& datos, 
-                     int num_muestras, int num_caracteristicas) {
-    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (int i = 0; i < num_muestras; ++i) {
-        for (int j = 0; j < num_caracteristicas; ++j) {
-            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
-        }
-    }
-    return tensor;
-}
+                     int num_muestras, int num_caracteristicas);
 
-/**
- * @brief Crea un tensor columna 1D a partir de un vector
- * @param datos Vector de valores
- * @return Tensor de TensorFlow (N x 1)
- */
-Tensor crearTensor1D(const std::vector<float>& datos) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (size_t i = 0; i < datos.size(); ++i) {
-        mapa_tensor(i, 0) = datos[i];
-    }
-    return tensor;
-}
+// Crea un tensor columna 1D a partir de un vector
+// datos: Vector de valores
+// Retorna: Tensor de TensorFlow (N x 1)
+Tensor crearTensor1D(const std::vector<float>& datos);
 
-/**
- * @brief Calcula el Error Absoluto Medio
- * @param predicciones Tensor de valores predichos
- * @param objetivos Tensor de valores objetivo
- * @return Valor de EAM
- */
-float calcularEAM(const Tensor& predicciones, const Tensor& objetivos) {
-    auto datos_pred = predicciones.matrix<float>();
-    auto datos_obj = objetivos.matrix<float>();
-    int n = predicciones.dim_size(0);
-    
-    float eam = 0.0f;
-    for (int i = 0; i < n; ++i) {
-        eam += std::abs(datos_pred(i, 0) - datos_obj(i, 0));
-    }
-    return eam / n;
-}
+// Calcula el Error Absoluto Medio
+// predicciones: Tensor de valores predichos
+// objetivos: Tensor de valores objetivo
+// Retorna: Valor de EAM
+float calcularEAM(const Tensor& predicciones, const Tensor& objetivos);
 
-/**
- * @brief Calcula la Raíz del Error Cuadrático Medio
- * @param predicciones Tensor de valores predichos
- * @param objetivos Tensor de valores objetivo
- * @return Valor de RECM
- */
-float calcularRECM(const Tensor& predicciones, const Tensor& objetivos) {
-    auto datos_pred = predicciones.matrix<float>();
-    auto datos_obj = objetivos.matrix<float>();
-    int n = predicciones.dim_size(0);
-    
-    float ecm = 0.0f;
-    for (int i = 0; i < n; ++i) {
-        float diff = datos_pred(i, 0) - datos_obj(i, 0);
-        ecm += diff * diff;
-    }
-    return std::sqrt(ecm / n);
-}
+// Calcula la Raíz del Error Cuadrático Medio
+// predicciones: Tensor de valores predichos
+// objetivos: Tensor de valores objetivo
+// Retorna: Valor de RECM
+float calcularRECM(const Tensor& predicciones, const Tensor& objetivos);
 
 int main() {
     std::cout << "==========================================" << std::endl;
@@ -408,4 +330,112 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Genera datos de series temporales sintéticas
+// Crea una serie temporal: y(t) = sin(2*pi*t/periodo) + tendencia*t + ruido
+// longitud: Número de puntos temporales
+// periodo: Período de la onda sinusoidal
+// tendencia: Coeficiente de tendencia lineal
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos: Vector de salida para valores de la serie temporal
+void generarSerieTemporal(int longitud, float periodo, float tendencia, 
+                          float nivel_ruido, std::vector<float>& datos) {
+    std::random_device rd;
+    std::mt19937 gen(42); // Semilla fija para reproducibilidad
+    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
+    
+    datos.clear();
+    const float PI = 3.14159265358979323846f;
+    
+    for (int t = 0; t < longitud; ++t) {
+        float valor = std::sin(2.0f * PI * t / periodo) + tendencia * t / longitud + ruido(gen);
+        datos.push_back(valor);
+    }
+}
+
+// Crea características y objetivos de ventana deslizante a partir de la serie temporal
+// serie: Serie temporal de entrada
+// tamano_ventana: Número de puntos anteriores a usar como características
+// datos_x: Vectores de características de salida (ventanas)
+// datos_y: Valores objetivo de salida (siguiente valor después de cada ventana)
+void crearVentanasDeslizantes(const std::vector<float>& serie, int tamano_ventana,
+                              std::vector<float>& datos_x, std::vector<float>& datos_y) {
+    datos_x.clear();
+    datos_y.clear();
+    
+    int num_ventanas = serie.size() - tamano_ventana;
+    
+    for (int i = 0; i < num_ventanas; ++i) {
+        // Características de la ventana
+        for (int j = 0; j < tamano_ventana; ++j) {
+            datos_x.push_back(serie[i + j]);
+        }
+        // Objetivo: siguiente valor después de la ventana
+        datos_y.push_back(serie[i + tamano_ventana]);
+    }
+}
+
+// Crea un tensor 2D a partir de datos aplanados
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
+Tensor crearTensor2D(const std::vector<float>& datos, 
+                     int num_muestras, int num_caracteristicas) {
+    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (int i = 0; i < num_muestras; ++i) {
+        for (int j = 0; j < num_caracteristicas; ++j) {
+            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
+        }
+    }
+    return tensor;
+}
+
+// Crea un tensor columna 1D a partir de un vector
+// datos: Vector de valores
+// Retorna: Tensor de TensorFlow (N x 1)
+Tensor crearTensor1D(const std::vector<float>& datos) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos.size(); ++i) {
+        mapa_tensor(i, 0) = datos[i];
+    }
+    return tensor;
+}
+
+// Calcula el Error Absoluto Medio
+// predicciones: Tensor de valores predichos
+// objetivos: Tensor de valores objetivo
+// Retorna: Valor de EAM
+float calcularEAM(const Tensor& predicciones, const Tensor& objetivos) {
+    auto datos_pred = predicciones.matrix<float>();
+    auto datos_obj = objetivos.matrix<float>();
+    int n = predicciones.dim_size(0);
+    
+    float eam = 0.0f;
+    for (int i = 0; i < n; ++i) {
+        eam += std::abs(datos_pred(i, 0) - datos_obj(i, 0));
+    }
+    return eam / n;
+}
+
+// Calcula la Raíz del Error Cuadrático Medio
+// predicciones: Tensor de valores predichos
+// objetivos: Tensor de valores objetivo
+// Retorna: Valor de RECM
+float calcularRECM(const Tensor& predicciones, const Tensor& objetivos) {
+    auto datos_pred = predicciones.matrix<float>();
+    auto datos_obj = objetivos.matrix<float>();
+    int n = predicciones.dim_size(0);
+    
+    float ecm = 0.0f;
+    for (int i = 0; i < n; ++i) {
+        float diff = datos_pred(i, 0) - datos_obj(i, 0);
+        ecm += diff * diff;
+    }
+    return std::sqrt(ecm / n);
 }

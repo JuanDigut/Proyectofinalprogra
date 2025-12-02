@@ -1,18 +1,16 @@
-/**
- * @file linear_regression.cpp
- * @brief Ejemplo 2: Regresión Lineal usando TensorFlow C++
- * 
- * Este ejemplo demuestra cómo implementar un modelo simple de regresión
- * lineal usando la API de TensorFlow C++. El modelo aprende a ajustar una línea
- * y = mx + b a un conjunto de puntos de datos de entrenamiento.
- * 
- * Conceptos clave demostrados:
- * - Creación de variables (parámetros entrenables)
- * - Definición de una función de pérdida (Error Cuadrático Medio)
- * - Cálculo de gradientes
- * - Implementación de optimización por descenso de gradiente
- * - Implementación del bucle de entrenamiento
- */
+// linear_regression.cpp
+// Ejemplo 2: Regresión Lineal usando TensorFlow C++
+// 
+// Este ejemplo demuestra cómo implementar un modelo simple de regresión
+// lineal usando la API de TensorFlow C++. El modelo aprende a ajustar una línea
+// y = mx + b a un conjunto de puntos de datos de entrenamiento.
+// 
+// Conceptos clave demostrados:
+// - Creación de variables (parámetros entrenables)
+// - Definición de una función de pérdida (Error Cuadrático Medio)
+// - Cálculo de gradientes
+// - Implementación de optimización por descenso de gradiente
+// - Implementación del bucle de entrenamiento
 
 #include <iostream>
 #include <vector>
@@ -26,52 +24,26 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Genera datos de entrenamiento sintéticos para regresión lineal
- * 
- * Genera puntos de datos siguiendo y = pendiente_real * x + intercepto_real + ruido
- * 
- * @param num_muestras Número de puntos de datos a generar
- * @param pendiente_real La pendiente real de la línea
- * @param intercepto_real El intercepto real en y
- * @param nivel_ruido Desviación estándar del ruido Gaussiano
- * @param datos_x Vector de salida para valores x
- * @param datos_y Vector de salida para valores y
- */
+// Declaraciones de funciones
+
+// Genera datos de entrenamiento sintéticos para regresión lineal
+// Genera puntos de datos siguiendo y = pendiente_real * x + intercepto_real + ruido
+// num_muestras: Número de puntos de datos a generar
+// pendiente_real: La pendiente real de la línea
+// intercepto_real: El intercepto real en y
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos_x: Vector de salida para valores x
+// datos_y: Vector de salida para valores y
 void generarDatosEntrenamiento(int num_muestras, float pendiente_real, float intercepto_real,
                                float nivel_ruido, std::vector<float>& datos_x, 
-                               std::vector<float>& datos_y) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
-    std::uniform_real_distribution<float> dist_x(0.0f, 10.0f);
-    
-    datos_x.resize(num_muestras);
-    datos_y.resize(num_muestras);
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        datos_x[i] = dist_x(gen);
-        datos_y[i] = pendiente_real * datos_x[i] + intercepto_real + ruido(gen);
-    }
-}
+                               std::vector<float>& datos_y);
 
-/**
- * @brief Crea un tensor a partir de un vector de flotantes
- * @param datos El vector de entrada
- * @return Un tensor de TensorFlow conteniendo los datos
- */
-Tensor crearTensor(const std::vector<float>& datos) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (size_t i = 0; i < datos.size(); ++i) {
-        mapa_tensor(i, 0) = datos[i];
-    }
-    return tensor;
-}
+// Crea un tensor a partir de un vector de flotantes
+// datos: El vector de entrada
+// Retorna: Un tensor de TensorFlow conteniendo los datos
+Tensor crearTensor(const std::vector<float>& datos);
 
-/**
- * @brief Demostración principal de regresión lineal
- */
+// Demostración principal de regresión lineal
 int main() {
     std::cout << "==========================================" << std::endl;
     std::cout << "  Demo de Regresión Lineal TensorFlow C++" << std::endl;
@@ -226,4 +198,43 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Genera datos de entrenamiento sintéticos para regresión lineal
+// Genera puntos de datos siguiendo y = pendiente_real * x + intercepto_real + ruido
+// num_muestras: Número de puntos de datos a generar
+// pendiente_real: La pendiente real de la línea
+// intercepto_real: El intercepto real en y
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos_x: Vector de salida para valores x
+// datos_y: Vector de salida para valores y
+void generarDatosEntrenamiento(int num_muestras, float pendiente_real, float intercepto_real,
+                               float nivel_ruido, std::vector<float>& datos_x, 
+                               std::vector<float>& datos_y) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
+    std::uniform_real_distribution<float> dist_x(0.0f, 10.0f);
+    
+    datos_x.resize(num_muestras);
+    datos_y.resize(num_muestras);
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        datos_x[i] = dist_x(gen);
+        datos_y[i] = pendiente_real * datos_x[i] + intercepto_real + ruido(gen);
+    }
+}
+
+// Crea un tensor a partir de un vector de flotantes
+// datos: El vector de entrada
+// Retorna: Un tensor de TensorFlow conteniendo los datos
+Tensor crearTensor(const std::vector<float>& datos) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos.size(); ++i) {
+        mapa_tensor(i, 0) = datos[i];
+    }
+    return tensor;
 }

@@ -1,21 +1,19 @@
-/**
- * @file neural_network.cpp
- * @brief Ejemplo 3: Clasificación con Red Neuronal usando TensorFlow C++
- * 
- * Este ejemplo demuestra cómo construir y entrenar una red neuronal simple
- * para clasificación binaria usando la API de TensorFlow C++.
- * 
- * El ejemplo crea una red neuronal de 2 capas para clasificar datos sintéticos
- * en dos clases basándose en un límite de decisión similar a XOR.
- * 
- * Conceptos clave demostrados:
- * - Arquitectura de red neuronal multicapa
- * - Funciones de activación (Sigmoide)
- * - Propagación hacia adelante
- * - Cálculo de pérdida (Entropía Cruzada Binaria)
- * - Retropropagación con descenso de gradiente
- * - Métricas de precisión de clasificación
- */
+// neural_network.cpp
+// Ejemplo 3: Clasificación con Red Neuronal usando TensorFlow C++
+// 
+// Este ejemplo demuestra cómo construir y entrenar una red neuronal simple
+// para clasificación binaria usando la API de TensorFlow C++.
+// 
+// El ejemplo crea una red neuronal de 2 capas para clasificar datos sintéticos
+// en dos clases basándose en un límite de decisión similar a XOR.
+// 
+// Conceptos clave demostrados:
+// - Arquitectura de red neuronal multicapa
+// - Funciones de activación (Sigmoide)
+// - Propagación hacia adelante
+// - Cálculo de pérdida (Entropía Cruzada Binaria)
+// - Retropropagación con descenso de gradiente
+// - Métricas de precisión de clasificación
 
 #include <iostream>
 #include <vector>
@@ -30,101 +28,38 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Genera datos de clasificación sintéticos (patrón similar a XOR)
- * 
- * Crea un conjunto de datos donde la clase 1 corresponde a puntos donde x1*x2 > 0
- * (primer y tercer cuadrantes), y la clase 0 corresponde a puntos donde
- * x1*x2 < 0 (segundo y cuarto cuadrantes). Esto prueba la capacidad de la red
- * para aprender límites de decisión no lineales.
- * 
- * @param num_muestras Número total de muestras
- * @param datos_x Matriz de características de salida (num_muestras x 2)
- * @param datos_y Etiquetas de salida (0 o 1)
- */
+// Declaraciones de funciones
+
+// Genera datos de clasificación sintéticos (patrón similar a XOR)
+// Crea un conjunto de datos donde la clase 1 corresponde a puntos donde x1*x2 > 0
+// (primer y tercer cuadrantes), y la clase 0 corresponde a puntos donde
+// x1*x2 < 0 (segundo y cuarto cuadrantes). Esto prueba la capacidad de la red
+// para aprender límites de decisión no lineales.
+// num_muestras: Número total de muestras
+// datos_x: Matriz de características de salida (num_muestras x 2)
+// datos_y: Etiquetas de salida (0 o 1)
 void generarDatosClasificacion(int num_muestras, 
                                std::vector<float>& datos_x,
-                               std::vector<float>& datos_y) {
-    std::random_device rd;
-    std::mt19937 gen(42); // Semilla fija para reproducibilidad
-    std::uniform_real_distribution<float> uniforme(-2.0f, 2.0f);
-    std::normal_distribution<float> ruido(0.0f, 0.1f);
-    
-    datos_x.clear();
-    datos_y.clear();
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        float x1 = uniforme(gen);
-        float x2 = uniforme(gen);
-        
-        // Patrón similar a XOR: etiqueta = 1 si (x1*x2 > 0), sino 0
-        float etiqueta = (x1 * x2 > 0) ? 1.0f : 0.0f;
-        
-        // Agregar algo de ruido para hacerlo desafiante
-        x1 += ruido(gen);
-        x2 += ruido(gen);
-        
-        datos_x.push_back(x1);
-        datos_x.push_back(x2);
-        datos_y.push_back(etiqueta);
-    }
-}
+                               std::vector<float>& datos_y);
 
-/**
- * @brief Crea un tensor 2D a partir de datos de características
- * @param datos Vector plano de características
- * @param num_muestras Número de muestras
- * @param num_caracteristicas Número de características por muestra
- * @return Tensor de TensorFlow
- */
+// Crea un tensor 2D a partir de datos de características
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
 Tensor crearTensorCaracteristicas(const std::vector<float>& datos, 
-                                  int num_muestras, int num_caracteristicas) {
-    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (int i = 0; i < num_muestras; ++i) {
-        for (int j = 0; j < num_caracteristicas; ++j) {
-            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
-        }
-    }
-    return tensor;
-}
+                                  int num_muestras, int num_caracteristicas);
 
-/**
- * @brief Crea un tensor 1D a partir de datos de etiquetas
- * @param datos Vector de etiquetas
- * @return Tensor de TensorFlow
- */
-Tensor crearTensorEtiquetas(const std::vector<float>& datos) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (size_t i = 0; i < datos.size(); ++i) {
-        mapa_tensor(i, 0) = datos[i];
-    }
-    return tensor;
-}
+// Crea un tensor 1D a partir de datos de etiquetas
+// datos: Vector de etiquetas
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorEtiquetas(const std::vector<float>& datos);
 
-/**
- * @brief Calcula la precisión de clasificación
- * @param predicciones Probabilidades predichas
- * @param etiquetas Etiquetas verdaderas
- * @return Precisión como porcentaje
- */
-float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas) {
-    auto datos_pred = predicciones.matrix<float>();
-    auto datos_etiquetas = etiquetas.matrix<float>();
-    
-    int correctos = 0;
-    int total = predicciones.dim_size(0);
-    
-    for (int i = 0; i < total; ++i) {
-        float clase_pred = (datos_pred(i, 0) >= 0.5f) ? 1.0f : 0.0f;
-        if (clase_pred == datos_etiquetas(i, 0)) {
-            correctos++;
-        }
-    }
-    
-    return 100.0f * static_cast<float>(correctos) / static_cast<float>(total);
-}
+// Calcula la precisión de clasificación
+// predicciones: Probabilidades predichas
+// etiquetas: Etiquetas verdaderas
+// Retorna: Precisión como porcentaje
+float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas);
 
 int main() {
     std::cout << "==========================================" << std::endl;
@@ -352,4 +287,92 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Genera datos de clasificación sintéticos (patrón similar a XOR)
+// Crea un conjunto de datos donde la clase 1 corresponde a puntos donde x1*x2 > 0
+// (primer y tercer cuadrantes), y la clase 0 corresponde a puntos donde
+// x1*x2 < 0 (segundo y cuarto cuadrantes). Esto prueba la capacidad de la red
+// para aprender límites de decisión no lineales.
+// num_muestras: Número total de muestras
+// datos_x: Matriz de características de salida (num_muestras x 2)
+// datos_y: Etiquetas de salida (0 o 1)
+void generarDatosClasificacion(int num_muestras, 
+                               std::vector<float>& datos_x,
+                               std::vector<float>& datos_y) {
+    std::random_device rd;
+    std::mt19937 gen(42); // Semilla fija para reproducibilidad
+    std::uniform_real_distribution<float> uniforme(-2.0f, 2.0f);
+    std::normal_distribution<float> ruido(0.0f, 0.1f);
+    
+    datos_x.clear();
+    datos_y.clear();
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        float x1 = uniforme(gen);
+        float x2 = uniforme(gen);
+        
+        // Patrón similar a XOR: etiqueta = 1 si (x1*x2 > 0), sino 0
+        float etiqueta = (x1 * x2 > 0) ? 1.0f : 0.0f;
+        
+        // Agregar algo de ruido para hacerlo desafiante
+        x1 += ruido(gen);
+        x2 += ruido(gen);
+        
+        datos_x.push_back(x1);
+        datos_x.push_back(x2);
+        datos_y.push_back(etiqueta);
+    }
+}
+
+// Crea un tensor 2D a partir de datos de características
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorCaracteristicas(const std::vector<float>& datos, 
+                                  int num_muestras, int num_caracteristicas) {
+    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (int i = 0; i < num_muestras; ++i) {
+        for (int j = 0; j < num_caracteristicas; ++j) {
+            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
+        }
+    }
+    return tensor;
+}
+
+// Crea un tensor 1D a partir de datos de etiquetas
+// datos: Vector de etiquetas
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorEtiquetas(const std::vector<float>& datos) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos.size(); ++i) {
+        mapa_tensor(i, 0) = datos[i];
+    }
+    return tensor;
+}
+
+// Calcula la precisión de clasificación
+// predicciones: Probabilidades predichas
+// etiquetas: Etiquetas verdaderas
+// Retorna: Precisión como porcentaje
+float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas) {
+    auto datos_pred = predicciones.matrix<float>();
+    auto datos_etiquetas = etiquetas.matrix<float>();
+    
+    int correctos = 0;
+    int total = predicciones.dim_size(0);
+    
+    for (int i = 0; i < total; ++i) {
+        float clase_pred = (datos_pred(i, 0) >= 0.5f) ? 1.0f : 0.0f;
+        if (clase_pred == datos_etiquetas(i, 0)) {
+            correctos++;
+        }
+    }
+    
+    return 100.0f * static_cast<float>(correctos) / static_cast<float>(total);
 }
