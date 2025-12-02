@@ -1,17 +1,15 @@
-/**
- * @file basic_operations.cpp
- * @brief Ejemplo 1: Operaciones Básicas de TensorFlow C++
- * 
- * Este ejemplo demuestra operaciones fundamentales de TensorFlow C++ incluyendo:
- * - Creación e inicialización de una sesión de TensorFlow
- * - Creación de tensores (constantes)
- * - Realización de operaciones matemáticas básicas
- * - Trabajo con formas y tipos de datos de tensores
- * 
- * La API de TensorFlow C++ proporciona acceso de bajo nivel a la funcionalidad
- * del grafo computacional de TensorFlow, permitiendo la ejecución eficiente de
- * tareas de aprendizaje automático y computación numérica.
- */
+// basic_operations.cpp
+// Ejemplo 1: Operaciones Básicas de TensorFlow C++
+// 
+// Este ejemplo demuestra operaciones fundamentales de TensorFlow C++ incluyendo:
+// - Creación e inicialización de una sesión de TensorFlow
+// - Creación de tensores (constantes)
+// - Realización de operaciones matemáticas básicas
+// - Trabajo con formas y tipos de datos de tensores
+// 
+// La API de TensorFlow C++ proporciona acceso de bajo nivel a la funcionalidad
+// del grafo computacional de TensorFlow, permitiendo la ejecución eficiente de
+// tareas de aprendizaje automático y computación numérica.
 
 #include <iostream>
 #include <vector>
@@ -22,11 +20,75 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Demuestra la creación y manipulación de tensores escalares
- * @param root El ámbito de TensorFlow para las operaciones
- * @param session La sesión del cliente para ejecutar operaciones
- */
+// Declaraciones de funciones
+
+// Demuestra la creación y manipulación de tensores escalares
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
+void demostrarOperacionesEscalares(Scope& root, ClientSession& session);
+
+// Demuestra operaciones de tensores vectoriales y matriciales
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
+void demostrarOperacionesVectoriales(Scope& root, ClientSession& session);
+
+// Demuestra operaciones matriciales incluyendo multiplicación
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
+void demostrarOperacionesMatriciales(Scope& root, ClientSession& session);
+
+// Demuestra manipulación de formas de tensores
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
+void demostrarFormasTensores(Scope& root, ClientSession& session);
+
+// Demuestra funciones matemáticas (sin, cos, exp, log)
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
+void demostrarFuncionesMatematicas(Scope& root, ClientSession& session);
+
+int main() {
+    std::cout << "==========================================" << std::endl;
+    std::cout << "  Demo de Operaciones Básicas TensorFlow C++" << std::endl;
+    std::cout << "==========================================" << std::endl;
+    
+    // Crear un ámbito raíz para las operaciones de TensorFlow
+    Scope root = Scope::NewRootScope();
+    
+    // Verificar si la creación del ámbito fue exitosa
+    if (!root.ok()) {
+        std::cerr << "Error al crear el ámbito de TensorFlow: " << root.status().ToString() << std::endl;
+        return 1;
+    }
+    
+    // Crear una sesión de cliente para ejecutar operaciones
+    ClientSession session(root);
+    
+    try {
+        // Ejecutar todas las demostraciones
+        demostrarOperacionesEscalares(root, session);
+        demostrarOperacionesVectoriales(root, session);
+        demostrarOperacionesMatriciales(root, session);
+        demostrarFormasTensores(root, session);
+        demostrarFuncionesMatematicas(root, session);
+        
+        std::cout << "\n==========================================" << std::endl;
+        std::cout << "  ¡Todas las demostraciones completadas exitosamente!" << std::endl;
+        std::cout << "==========================================" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
+}
+
+// Definiciones de funciones
+
+// Demuestra la creación y manipulación de tensores escalares
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
 void demostrarOperacionesEscalares(Scope& root, ClientSession& session) {
     std::cout << "\n=== Operaciones Escalares ===" << std::endl;
     
@@ -52,11 +114,9 @@ void demostrarOperacionesEscalares(Scope& root, ClientSession& session) {
     std::cout << "a / b = " << salidas[3].scalar<float>()() << std::endl;
 }
 
-/**
- * @brief Demuestra operaciones de tensores vectoriales y matriciales
- * @param root El ámbito de TensorFlow para las operaciones
- * @param session La sesión del cliente para ejecutar operaciones
- */
+// Demuestra operaciones de tensores vectoriales y matriciales
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
 void demostrarOperacionesVectoriales(Scope& root, ClientSession& session) {
     std::cout << "\n=== Operaciones Vectoriales ===" << std::endl;
     
@@ -93,11 +153,9 @@ void demostrarOperacionesVectoriales(Scope& root, ClientSession& session) {
     std::cout << "]" << std::endl;
 }
 
-/**
- * @brief Demuestra operaciones matriciales incluyendo multiplicación
- * @param root El ámbito de TensorFlow para las operaciones
- * @param session La sesión del cliente para ejecutar operaciones
- */
+// Demuestra operaciones matriciales incluyendo multiplicación
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
 void demostrarOperacionesMatriciales(Scope& root, ClientSession& session) {
     std::cout << "\n=== Operaciones Matriciales ===" << std::endl;
     
@@ -140,11 +198,9 @@ void demostrarOperacionesMatriciales(Scope& root, ClientSession& session) {
     std::cout << "   [" << datos_trans(1, 0) << ", " << datos_trans(1, 1) << "]]" << std::endl;
 }
 
-/**
- * @brief Demuestra manipulación de formas de tensores
- * @param root El ámbito de TensorFlow para las operaciones
- * @param session La sesión del cliente para ejecutar operaciones
- */
+// Demuestra manipulación de formas de tensores
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
 void demostrarFormasTensores(Scope& root, ClientSession& session) {
     std::cout << "\n=== Formas de Tensores ===" << std::endl;
     
@@ -200,11 +256,9 @@ void demostrarFormasTensores(Scope& root, ClientSession& session) {
     std::cout << "]" << std::endl;
 }
 
-/**
- * @brief Demuestra funciones matemáticas (sin, cos, exp, log)
- * @param root El ámbito de TensorFlow para las operaciones
- * @param session La sesión del cliente para ejecutar operaciones
- */
+// Demuestra funciones matemáticas (sin, cos, exp, log)
+// root: El ámbito de TensorFlow para las operaciones
+// session: La sesión del cliente para ejecutar operaciones
 void demostrarFuncionesMatematicas(Scope& root, ClientSession& session) {
     std::cout << "\n=== Funciones Matemáticas ===" << std::endl;
     
@@ -263,41 +317,4 @@ void demostrarFuncionesMatematicas(Scope& root, ClientSession& session) {
         if (i < 4) std::cout << ", ";
     }
     std::cout << "]" << std::endl;
-}
-
-int main() {
-    std::cout << "==========================================" << std::endl;
-    std::cout << "  Demo de Operaciones Básicas TensorFlow C++" << std::endl;
-    std::cout << "==========================================" << std::endl;
-    
-    // Crear un ámbito raíz para las operaciones de TensorFlow
-    Scope root = Scope::NewRootScope();
-    
-    // Verificar si la creación del ámbito fue exitosa
-    if (!root.ok()) {
-        std::cerr << "Error al crear el ámbito de TensorFlow: " << root.status().ToString() << std::endl;
-        return 1;
-    }
-    
-    // Crear una sesión de cliente para ejecutar operaciones
-    ClientSession session(root);
-    
-    try {
-        // Ejecutar todas las demostraciones
-        demostrarOperacionesEscalares(root, session);
-        demostrarOperacionesVectoriales(root, session);
-        demostrarOperacionesMatriciales(root, session);
-        demostrarFormasTensores(root, session);
-        demostrarFuncionesMatematicas(root, session);
-        
-        std::cout << "\n==========================================" << std::endl;
-        std::cout << "  ¡Todas las demostraciones completadas exitosamente!" << std::endl;
-        std::cout << "==========================================" << std::endl;
-        
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    }
-    
-    return 0;
 }

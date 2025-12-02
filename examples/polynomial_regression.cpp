@@ -1,18 +1,16 @@
-/**
- * @file polynomial_regression.cpp
- * @brief Ejemplo 4: Regresión Polinómica usando TensorFlow C++
- * 
- * Este ejemplo demuestra cómo implementar regresión polinómica
- * usando la API de TensorFlow C++. El modelo aprende a ajustar una función
- * polinómica y = 0.5x³ - x² + 0.5x + 1 a un conjunto de puntos de datos de entrenamiento.
- * 
- * Conceptos clave demostrados:
- * - Creación de tensores y operaciones
- * - Construcción de grafos computacionales
- * - Entrenamiento con descenso de gradiente
- * - Uso de variables y marcadores de posición
- * - Ingeniería de características (características polinómicas)
- */
+// polynomial_regression.cpp
+// Ejemplo 4: Regresión Polinómica usando TensorFlow C++
+// 
+// Este ejemplo demuestra cómo implementar regresión polinómica
+// usando la API de TensorFlow C++. El modelo aprende a ajustar una función
+// polinómica y = 0.5x³ - x² + 0.5x + 1 a un conjunto de puntos de datos de entrenamiento.
+// 
+// Conceptos clave demostrados:
+// - Creación de tensores y operaciones
+// - Construcción de grafos computacionales
+// - Entrenamiento con descenso de gradiente
+// - Uso de variables y marcadores de posición
+// - Ingeniería de características (características polinómicas)
 
 #include <iostream>
 #include <vector>
@@ -26,79 +24,29 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Genera datos de entrenamiento sintéticos para regresión polinómica
- * 
- * Genera puntos de datos siguiendo y = 0.5x³ - x² + 0.5x + 1 + ruido
- * 
- * @param num_muestras Número de puntos de datos a generar
- * @param nivel_ruido Desviación estándar del ruido Gaussiano
- * @param datos_x Vector de salida para valores x
- * @param datos_y Vector de salida para valores y
- */
+// Declaraciones de funciones
+
+// Genera datos de entrenamiento sintéticos para regresión polinómica
+// Genera puntos de datos siguiendo y = 0.5x³ - x² + 0.5x + 1 + ruido
+// num_muestras: Número de puntos de datos a generar
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos_x: Vector de salida para valores x
+// datos_y: Vector de salida para valores y
 void generarDatosPolinomicos(int num_muestras, float nivel_ruido,
                              std::vector<float>& datos_x,
-                             std::vector<float>& datos_y) {
-    std::mt19937 gen(42);  // Semilla fija para reproducibilidad
-    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
-    std::uniform_real_distribution<float> dist_x(-2.0f, 2.0f);
-    
-    datos_x.resize(num_muestras);
-    datos_y.resize(num_muestras);
-    
-    // Coeficientes reales: y = 0.5x³ - x² + 0.5x + 1
-    const float c3 = 0.5f;   // coeficiente de x³
-    const float c2 = -1.0f;  // coeficiente de x²
-    const float c1 = 0.5f;   // coeficiente de x
-    const float c0 = 1.0f;   // intercepto
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        float x = dist_x(gen);
-        datos_x[i] = x;
-        float x2 = x * x;
-        float x3 = x2 * x;
-        datos_y[i] = c3 * x3 + c2 * x2 + c1 * x + c0 + ruido(gen);
-    }
-}
+                             std::vector<float>& datos_y);
 
-/**
- * @brief Crea un tensor con características polinómicas [x, x², x³]
- * 
- * @param datos_x Valores de entrada x
- * @return Tensor de TensorFlow con forma (num_muestras, 3)
- */
-Tensor crearCaracteristicasPolinomicas(const std::vector<float>& datos_x) {
-    int num_muestras = static_cast<int>(datos_x.size());
-    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, 3}));
-    auto mapa_tensor = tensor.matrix<float>();
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        float x = datos_x[i];
-        mapa_tensor(i, 0) = x;           // x
-        mapa_tensor(i, 1) = x * x;       // x²
-        mapa_tensor(i, 2) = x * x * x;   // x³
-    }
-    return tensor;
-}
+// Crea un tensor con características polinómicas [x, x², x³]
+// datos_x: Valores de entrada x
+// Retorna: Tensor de TensorFlow con forma (num_muestras, 3)
+Tensor crearCaracteristicasPolinomicas(const std::vector<float>& datos_x);
 
-/**
- * @brief Crea un tensor a partir de valores y
- * 
- * @param datos_y Valores de entrada y
- * @return Tensor de TensorFlow con forma (num_muestras, 1)
- */
-Tensor crearTensorEtiquetas(const std::vector<float>& datos_y) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos_y.size()), 1}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (size_t i = 0; i < datos_y.size(); ++i) {
-        mapa_tensor(i, 0) = datos_y[i];
-    }
-    return tensor;
-}
+// Crea un tensor a partir de valores y
+// datos_y: Valores de entrada y
+// Retorna: Tensor de TensorFlow con forma (num_muestras, 1)
+Tensor crearTensorEtiquetas(const std::vector<float>& datos_y);
 
-/**
- * @brief Demostración principal de regresión polinómica
- */
+// Demostración principal de regresión polinómica
 int main() {
     std::cout << "==========================================" << std::endl;
     std::cout << "  Regresión Polinómica TensorFlow C++    " << std::endl;
@@ -268,4 +216,66 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Genera datos de entrenamiento sintéticos para regresión polinómica
+// Genera puntos de datos siguiendo y = 0.5x³ - x² + 0.5x + 1 + ruido
+// num_muestras: Número de puntos de datos a generar
+// nivel_ruido: Desviación estándar del ruido Gaussiano
+// datos_x: Vector de salida para valores x
+// datos_y: Vector de salida para valores y
+void generarDatosPolinomicos(int num_muestras, float nivel_ruido,
+                             std::vector<float>& datos_x,
+                             std::vector<float>& datos_y) {
+    std::mt19937 gen(42);  // Semilla fija para reproducibilidad
+    std::normal_distribution<float> ruido(0.0f, nivel_ruido);
+    std::uniform_real_distribution<float> dist_x(-2.0f, 2.0f);
+    
+    datos_x.resize(num_muestras);
+    datos_y.resize(num_muestras);
+    
+    // Coeficientes reales: y = 0.5x³ - x² + 0.5x + 1
+    const float c3 = 0.5f;   // coeficiente de x³
+    const float c2 = -1.0f;  // coeficiente de x²
+    const float c1 = 0.5f;   // coeficiente de x
+    const float c0 = 1.0f;   // intercepto
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        float x = dist_x(gen);
+        datos_x[i] = x;
+        float x2 = x * x;
+        float x3 = x2 * x;
+        datos_y[i] = c3 * x3 + c2 * x2 + c1 * x + c0 + ruido(gen);
+    }
+}
+
+// Crea un tensor con características polinómicas [x, x², x³]
+// datos_x: Valores de entrada x
+// Retorna: Tensor de TensorFlow con forma (num_muestras, 3)
+Tensor crearCaracteristicasPolinomicas(const std::vector<float>& datos_x) {
+    int num_muestras = static_cast<int>(datos_x.size());
+    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, 3}));
+    auto mapa_tensor = tensor.matrix<float>();
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        float x = datos_x[i];
+        mapa_tensor(i, 0) = x;           // x
+        mapa_tensor(i, 1) = x * x;       // x²
+        mapa_tensor(i, 2) = x * x * x;   // x³
+    }
+    return tensor;
+}
+
+// Crea un tensor a partir de valores y
+// datos_y: Valores de entrada y
+// Retorna: Tensor de TensorFlow con forma (num_muestras, 1)
+Tensor crearTensorEtiquetas(const std::vector<float>& datos_y) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos_y.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos_y.size(); ++i) {
+        mapa_tensor(i, 0) = datos_y[i];
+    }
+    return tensor;
 }

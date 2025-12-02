@@ -1,21 +1,19 @@
-/**
- * @file xor_classifier.cpp
- * @brief Ejemplo 5: Clasificador XOR usando Red Neuronal con TensorFlow C++
- * 
- * Este ejemplo demuestra cómo construir y entrenar una red neuronal
- * para resolver el clásico problema XOR usando la API de TensorFlow C++.
- * 
- * El problema XOR es una tarea de clasificación no linealmente separable que
- * requiere al menos una capa oculta para resolverse. Este ejemplo implementa
- * una red multicapa con arquitectura: 2 -> 8 -> 4 -> 1
- * 
- * Conceptos clave demostrados:
- * - Arquitectura de red neuronal multicapa
- * - Funciones de activación (ReLU para capas ocultas, Sigmoide para salida)
- * - El problema XOR y por qué necesita capas ocultas
- * - Pérdida de Entropía Cruzada Binaria
- * - Propagación hacia adelante y hacia atrás
- */
+// xor_classifier.cpp
+// Ejemplo 5: Clasificador XOR usando Red Neuronal con TensorFlow C++
+// 
+// Este ejemplo demuestra cómo construir y entrenar una red neuronal
+// para resolver el clásico problema XOR usando la API de TensorFlow C++.
+// 
+// El problema XOR es una tarea de clasificación no linealmente separable que
+// requiere al menos una capa oculta para resolverse. Este ejemplo implementa
+// una red multicapa con arquitectura: 2 -> 8 -> 4 -> 1
+// 
+// Conceptos clave demostrados:
+// - Arquitectura de red neuronal multicapa
+// - Funciones de activación (ReLU para capas ocultas, Sigmoide para salida)
+// - El problema XOR y por qué necesita capas ocultas
+// - Pérdida de Entropía Cruzada Binaria
+// - Propagación hacia adelante y hacia atrás
 
 #include <iostream>
 #include <vector>
@@ -29,61 +27,26 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Crea un tensor a partir de datos de entrada XOR
- * @param datos Vector plano de características
- * @param num_muestras Número de muestras
- * @param num_caracteristicas Número de características por muestra
- * @return Tensor de TensorFlow
- */
+// Declaraciones de funciones
+
+// Crea un tensor a partir de datos de entrada XOR
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
 Tensor crearTensorCaracteristicas(const std::vector<float>& datos, 
-                                  int num_muestras, int num_caracteristicas) {
-    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (int i = 0; i < num_muestras; ++i) {
-        for (int j = 0; j < num_caracteristicas; ++j) {
-            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
-        }
-    }
-    return tensor;
-}
+                                  int num_muestras, int num_caracteristicas);
 
-/**
- * @brief Crea un tensor a partir de datos de etiquetas
- * @param datos Vector de etiquetas
- * @return Tensor de TensorFlow
- */
-Tensor crearTensorEtiquetas(const std::vector<float>& datos) {
-    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (size_t i = 0; i < datos.size(); ++i) {
-        mapa_tensor(i, 0) = datos[i];
-    }
-    return tensor;
-}
+// Crea un tensor a partir de datos de etiquetas
+// datos: Vector de etiquetas
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorEtiquetas(const std::vector<float>& datos);
 
-/**
- * @brief Calcula la precisión de clasificación
- * @param predicciones Probabilidades predichas
- * @param etiquetas Etiquetas verdaderas
- * @return Precisión como porcentaje
- */
-float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas) {
-    auto datos_pred = predicciones.matrix<float>();
-    auto datos_etiquetas = etiquetas.matrix<float>();
-    
-    int correctos = 0;
-    int total = predicciones.dim_size(0);
-    
-    for (int i = 0; i < total; ++i) {
-        float clase_pred = (datos_pred(i, 0) >= 0.5f) ? 1.0f : 0.0f;
-        if (clase_pred == datos_etiquetas(i, 0)) {
-            correctos++;
-        }
-    }
-    
-    return 100.0f * static_cast<float>(correctos) / static_cast<float>(total);
-}
+// Calcula la precisión de clasificación
+// predicciones: Probabilidades predichas
+// etiquetas: Etiquetas verdaderas
+// Retorna: Precisión como porcentaje
+float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas);
 
 int main() {
     std::cout << "==========================================" << std::endl;
@@ -332,4 +295,56 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Crea un tensor a partir de datos de entrada XOR
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorCaracteristicas(const std::vector<float>& datos, 
+                                  int num_muestras, int num_caracteristicas) {
+    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (int i = 0; i < num_muestras; ++i) {
+        for (int j = 0; j < num_caracteristicas; ++j) {
+            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
+        }
+    }
+    return tensor;
+}
+
+// Crea un tensor a partir de datos de etiquetas
+// datos: Vector de etiquetas
+// Retorna: Tensor de TensorFlow
+Tensor crearTensorEtiquetas(const std::vector<float>& datos) {
+    Tensor tensor(DT_FLOAT, TensorShape({static_cast<int64_t>(datos.size()), 1}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (size_t i = 0; i < datos.size(); ++i) {
+        mapa_tensor(i, 0) = datos[i];
+    }
+    return tensor;
+}
+
+// Calcula la precisión de clasificación
+// predicciones: Probabilidades predichas
+// etiquetas: Etiquetas verdaderas
+// Retorna: Precisión como porcentaje
+float calcularPrecision(const Tensor& predicciones, const Tensor& etiquetas) {
+    auto datos_pred = predicciones.matrix<float>();
+    auto datos_etiquetas = etiquetas.matrix<float>();
+    
+    int correctos = 0;
+    int total = predicciones.dim_size(0);
+    
+    for (int i = 0; i < total; ++i) {
+        float clase_pred = (datos_pred(i, 0) >= 0.5f) ? 1.0f : 0.0f;
+        if (clase_pred == datos_etiquetas(i, 0)) {
+            correctos++;
+        }
+    }
+    
+    return 100.0f * static_cast<float>(correctos) / static_cast<float>(total);
 }

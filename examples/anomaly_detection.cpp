@@ -1,21 +1,19 @@
-/**
- * @file anomaly_detection.cpp
- * @brief Ejemplo 6: Detección de Anomalías con Autoencoder usando TensorFlow C++
- * 
- * Este ejemplo demuestra cómo implementar detección de anomalías usando una
- * red neuronal Autoencoder con la API de TensorFlow C++.
- * 
- * Un Autoencoder aprende a comprimir y reconstruir datos normales. Cuando se le
- * presentan datos anómalos, el error de reconstrucción será mayor, permitiéndonos
- * detectar anomalías basándonos en un umbral.
- * 
- * Conceptos clave demostrados:
- * - Arquitectura de Autoencoder (codificador-decodificador)
- * - Aprendizaje no supervisado para detección de anomalías
- * - Error de reconstrucción como puntuación de anomalía
- * - Clasificación basada en umbral
- * - Métricas de detección (precisión, recall, exactitud)
- */
+// anomaly_detection.cpp
+// Ejemplo 6: Detección de Anomalías con Autoencoder usando TensorFlow C++
+// 
+// Este ejemplo demuestra cómo implementar detección de anomalías usando una
+// red neuronal Autoencoder con la API de TensorFlow C++.
+// 
+// Un Autoencoder aprende a comprimir y reconstruir datos normales. Cuando se le
+// presentan datos anómalos, el error de reconstrucción será mayor, permitiéndonos
+// detectar anomalías basándonos en un umbral.
+// 
+// Conceptos clave demostrados:
+// - Arquitectura de Autoencoder (codificador-decodificador)
+// - Aprendizaje no supervisado para detección de anomalías
+// - Error de reconstrucción como puntuación de anomalía
+// - Clasificación basada en umbral
+// - Métricas de detección (precisión, recall, exactitud)
 
 #include <iostream>
 #include <vector>
@@ -30,120 +28,46 @@
 using namespace tensorflow;
 using namespace tensorflow::ops;
 
-/**
- * @brief Genera datos normales sintéticos (distribución Gaussiana 2D)
- * 
- * @param num_muestras Número de muestras normales a generar
- * @param datos Vector de salida para puntos de datos (aplanado)
- * @param media_x Media de la coordenada x
- * @param media_y Media de la coordenada y
- * @param desv_est Desviación estándar
- */
+// Declaraciones de funciones
+
+// Genera datos normales sintéticos (distribución Gaussiana 2D)
+// num_muestras: Número de muestras normales a generar
+// datos: Vector de salida para puntos de datos (aplanado)
+// media_x: Media de la coordenada x
+// media_y: Media de la coordenada y
+// desv_est: Desviación estándar
 void generarDatosNormales(int num_muestras, std::vector<float>& datos,
-                          float media_x, float media_y, float desv_est) {
-    std::random_device rd;
-    std::mt19937 gen(42); // Semilla fija para reproducibilidad
-    std::normal_distribution<float> dist_x(media_x, desv_est);
-    std::normal_distribution<float> dist_y(media_y, desv_est);
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        datos.push_back(dist_x(gen));
-        datos.push_back(dist_y(gen));
-    }
-}
+                          float media_x, float media_y, float desv_est);
 
-/**
- * @brief Genera datos de anomalías (puntos alejados de la distribución normal)
- * 
- * @param num_muestras Número de muestras de anomalías a generar
- * @param datos Vector de salida para puntos de datos (aplanado)
- */
-void generarAnomalias(int num_muestras, std::vector<float>& datos) {
-    std::random_device rd;
-    std::mt19937 gen(123); // Semilla diferente para anomalías
-    std::uniform_real_distribution<float> dist(-5.0f, 5.0f);
-    
-    for (int i = 0; i < num_muestras; ++i) {
-        // Generar puntos alejados del centro de la distribución normal (0, 0)
-        float x = dist(gen);
-        float y = dist(gen);
-        
-        // Asegurar que las anomalías estén fuera de la región normal
-        if (std::abs(x) < 2.0f) x += (x >= 0) ? 2.5f : -2.5f;
-        if (std::abs(y) < 2.0f) y += (y >= 0) ? 2.5f : -2.5f;
-        
-        datos.push_back(x);
-        datos.push_back(y);
-    }
-}
+// Genera datos de anomalías (puntos alejados de la distribución normal)
+// num_muestras: Número de muestras de anomalías a generar
+// datos: Vector de salida para puntos de datos (aplanado)
+void generarAnomalias(int num_muestras, std::vector<float>& datos);
 
-/**
- * @brief Crea un tensor 2D a partir de datos aplanados
- * @param datos Vector plano de características
- * @param num_muestras Número de muestras
- * @param num_caracteristicas Número de características por muestra
- * @return Tensor de TensorFlow
- */
+// Crea un tensor 2D a partir de datos aplanados
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
 Tensor crearTensor2D(const std::vector<float>& datos, 
-                     int num_muestras, int num_caracteristicas) {
-    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
-    auto mapa_tensor = tensor.matrix<float>();
-    for (int i = 0; i < num_muestras; ++i) {
-        for (int j = 0; j < num_caracteristicas; ++j) {
-            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
-        }
-    }
-    return tensor;
-}
+                     int num_muestras, int num_caracteristicas);
 
-/**
- * @brief Calcula el error de reconstrucción para cada muestra
- * @param original Tensor de datos originales
- * @param reconstruido Tensor de datos reconstruidos
- * @return Vector de errores de reconstrucción (ECM por muestra)
- */
+// Calcula el error de reconstrucción para cada muestra
+// original: Tensor de datos originales
+// reconstruido: Tensor de datos reconstruidos
+// Retorna: Vector de errores de reconstrucción (ECM por muestra)
 std::vector<float> calcularErrorReconstruccion(const Tensor& original, 
-                                               const Tensor& reconstruido) {
-    auto datos_orig = original.matrix<float>();
-    auto datos_recon = reconstruido.matrix<float>();
-    int num_muestras = original.dim_size(0);
-    int num_caracteristicas = original.dim_size(1);
-    
-    std::vector<float> errores;
-    for (int i = 0; i < num_muestras; ++i) {
-        float ecm = 0.0f;
-        for (int j = 0; j < num_caracteristicas; ++j) {
-            float diff = datos_orig(i, j) - datos_recon(i, j);
-            ecm += diff * diff;
-        }
-        errores.push_back(ecm / num_caracteristicas);
-    }
-    return errores;
-}
+                                               const Tensor& reconstruido);
 
-/**
- * @brief Calcula métricas de detección
- * @param errores Errores de reconstrucción
- * @param etiquetas Etiquetas verdaderas (0 = normal, 1 = anomalía)
- * @param umbral Umbral de detección de anomalías
- * @return Tupla de (verdaderos positivos, falsos positivos, verdaderos negativos, falsos negativos)
- */
+// Calcula métricas de detección
+// errores: Errores de reconstrucción
+// etiquetas: Etiquetas verdaderas (0 = normal, 1 = anomalía)
+// umbral: Umbral de detección de anomalías
+// vp, fp, vn, fn: Variables de salida para verdaderos positivos, falsos positivos, verdaderos negativos, falsos negativos
 void calcularMetricas(const std::vector<float>& errores,
                       const std::vector<int>& etiquetas,
                       float umbral,
-                      int& vp, int& fp, int& vn, int& fn) {
-    vp = fp = vn = fn = 0;
-    
-    for (size_t i = 0; i < errores.size(); ++i) {
-        bool anomalia_predicha = errores[i] > umbral;
-        bool es_anomalia = etiquetas[i] == 1;
-        
-        if (anomalia_predicha && es_anomalia) vp++;
-        else if (anomalia_predicha && !es_anomalia) fp++;
-        else if (!anomalia_predicha && !es_anomalia) vn++;
-        else fn++;
-    }
-}
+                      int& vp, int& fp, int& vn, int& fn);
 
 int main() {
     std::cout << "==========================================" << std::endl;
@@ -434,4 +358,109 @@ int main() {
     std::cout << "==========================================" << std::endl;
     
     return 0;
+}
+
+// Definiciones de funciones
+
+// Genera datos normales sintéticos (distribución Gaussiana 2D)
+// num_muestras: Número de muestras normales a generar
+// datos: Vector de salida para puntos de datos (aplanado)
+// media_x: Media de la coordenada x
+// media_y: Media de la coordenada y
+// desv_est: Desviación estándar
+void generarDatosNormales(int num_muestras, std::vector<float>& datos,
+                          float media_x, float media_y, float desv_est) {
+    std::random_device rd;
+    std::mt19937 gen(42); // Semilla fija para reproducibilidad
+    std::normal_distribution<float> dist_x(media_x, desv_est);
+    std::normal_distribution<float> dist_y(media_y, desv_est);
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        datos.push_back(dist_x(gen));
+        datos.push_back(dist_y(gen));
+    }
+}
+
+// Genera datos de anomalías (puntos alejados de la distribución normal)
+// num_muestras: Número de muestras de anomalías a generar
+// datos: Vector de salida para puntos de datos (aplanado)
+void generarAnomalias(int num_muestras, std::vector<float>& datos) {
+    std::random_device rd;
+    std::mt19937 gen(123); // Semilla diferente para anomalías
+    std::uniform_real_distribution<float> dist(-5.0f, 5.0f);
+    
+    for (int i = 0; i < num_muestras; ++i) {
+        // Generar puntos alejados del centro de la distribución normal (0, 0)
+        float x = dist(gen);
+        float y = dist(gen);
+        
+        // Asegurar que las anomalías estén fuera de la región normal
+        if (std::abs(x) < 2.0f) x += (x >= 0) ? 2.5f : -2.5f;
+        if (std::abs(y) < 2.0f) y += (y >= 0) ? 2.5f : -2.5f;
+        
+        datos.push_back(x);
+        datos.push_back(y);
+    }
+}
+
+// Crea un tensor 2D a partir de datos aplanados
+// datos: Vector plano de características
+// num_muestras: Número de muestras
+// num_caracteristicas: Número de características por muestra
+// Retorna: Tensor de TensorFlow
+Tensor crearTensor2D(const std::vector<float>& datos, 
+                     int num_muestras, int num_caracteristicas) {
+    Tensor tensor(DT_FLOAT, TensorShape({num_muestras, num_caracteristicas}));
+    auto mapa_tensor = tensor.matrix<float>();
+    for (int i = 0; i < num_muestras; ++i) {
+        for (int j = 0; j < num_caracteristicas; ++j) {
+            mapa_tensor(i, j) = datos[i * num_caracteristicas + j];
+        }
+    }
+    return tensor;
+}
+
+// Calcula el error de reconstrucción para cada muestra
+// original: Tensor de datos originales
+// reconstruido: Tensor de datos reconstruidos
+// Retorna: Vector de errores de reconstrucción (ECM por muestra)
+std::vector<float> calcularErrorReconstruccion(const Tensor& original, 
+                                               const Tensor& reconstruido) {
+    auto datos_orig = original.matrix<float>();
+    auto datos_recon = reconstruido.matrix<float>();
+    int num_muestras = original.dim_size(0);
+    int num_caracteristicas = original.dim_size(1);
+    
+    std::vector<float> errores;
+    for (int i = 0; i < num_muestras; ++i) {
+        float ecm = 0.0f;
+        for (int j = 0; j < num_caracteristicas; ++j) {
+            float diff = datos_orig(i, j) - datos_recon(i, j);
+            ecm += diff * diff;
+        }
+        errores.push_back(ecm / num_caracteristicas);
+    }
+    return errores;
+}
+
+// Calcula métricas de detección
+// errores: Errores de reconstrucción
+// etiquetas: Etiquetas verdaderas (0 = normal, 1 = anomalía)
+// umbral: Umbral de detección de anomalías
+// vp, fp, vn, fn: Variables de salida para verdaderos positivos, falsos positivos, verdaderos negativos, falsos negativos
+void calcularMetricas(const std::vector<float>& errores,
+                      const std::vector<int>& etiquetas,
+                      float umbral,
+                      int& vp, int& fp, int& vn, int& fn) {
+    vp = fp = vn = fn = 0;
+    
+    for (size_t i = 0; i < errores.size(); ++i) {
+        bool anomalia_predicha = errores[i] > umbral;
+        bool es_anomalia = etiquetas[i] == 1;
+        
+        if (anomalia_predicha && es_anomalia) vp++;
+        else if (anomalia_predicha && !es_anomalia) fp++;
+        else if (!anomalia_predicha && !es_anomalia) vn++;
+        else fn++;
+    }
 }
