@@ -6,16 +6,18 @@ From: tensorflow/tensorflow:devel
     Description Contenedor para ejecutar ejemplos de TensorFlow C++ del Proyecto Final
     Version 1.0
 
-%files
-    Proyectofinalprogra /opt/proyecto
-
 %post
     set -ex
     
+    # Instalar dependencias (mismo que en Dockerfile)
     apt-get update && apt-get install -y \
         cmake git pkg-config rsync \
         && rm -rf /var/lib/apt/lists/*
 
+    # Clonar repositorio (mismo que en Dockerfile)
+    git clone https://github.com/JuanDigut/Proyectofinalprogra.git /opt/proyecto
+
+    # Configurar TensorFlow (mismo que en Dockerfile)
     pip install --upgrade pip
     pip install tensorflow==2.13.1
 
@@ -55,14 +57,13 @@ From: tensorflow/tensorflow:devel
 
     # Update library cache
     echo "/opt/tensorflow/lib" > /etc/ld.so.conf.d/tensorflow.conf
-    ldconfig -v | grep tensorflow || true
+    ldconfig
 
-    # Build project from local files
+    # Compilar el proyecto (mismo que en Dockerfile)
     cd /opt/proyecto
     rm -rf build
     mkdir -p build && cd build
     
-    # Pass library path explicitly with multiple flags
     export LD_LIBRARY_PATH=/opt/tensorflow/lib:$LD_LIBRARY_PATH
     cmake -DTENSORFLOW_DIR=/opt/tensorflow \
           -DCMAKE_BUILD_TYPE=Release \
@@ -75,6 +76,7 @@ From: tensorflow/tensorflow:devel
     export TENSORFLOW_DIR=/opt/tensorflow
     export LD_LIBRARY_PATH=/opt/tensorflow/lib:$LD_LIBRARY_PATH
     export PATH=/opt/proyecto/build/examples:$PATH
+    export TF_CPP_MIN_LOG_LEVEL=2
 
 %runscript
     echo "=== Contenedor TensorFlow C++ - Proyecto Final ==="
@@ -90,6 +92,7 @@ From: tensorflow/tensorflow:devel
 
 %help
     Contenedor con TensorFlow C++ precompilado para el proyecto final.
+    Este contenedor está basado en el mismo Dockerfile del proyecto.
     
     Construir:  apptainer build tensorflow_cpp.sif tensorflow_cpp.def
     
