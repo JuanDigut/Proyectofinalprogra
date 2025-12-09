@@ -45,11 +45,6 @@ Tensor crearTensor(const std::vector<float>& datos);
 
 // Demostración principal de regresión lineal
 int main() {
-    std::cout << "==========================================" << std::endl;
-    std::cout << "  Demo de Regresión Lineal TensorFlow C++" << std::endl;
-    std::cout << "  Análisis de Sensibilidad al Ruido" << std::endl;
-    std::cout << "==========================================" << std::endl;
-    
     // Parámetros de verdad base (intentaremos aprender estos)
     const float PENDIENTE_REAL = 2.5f;
     const float INTERCEPTO_REAL = 1.0f;
@@ -245,10 +240,6 @@ int main() {
             std::cout << std::setw(5) << epoca << " | " << std::setw(7) << perdida_actual << std::endl;
         }
     }
-    
-    std::cout << "\n==========================================" << std::endl;
-    std::cout << "  ¡Análisis de Sensibilidad Completado!" << std::endl;
-    std::cout << "==========================================" << std::endl;
     
     return 0;
 }
