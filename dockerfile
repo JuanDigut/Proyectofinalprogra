@@ -4,31 +4,42 @@ LABEL author="JuanDigut"
 LABEL description="Contenedor para ejecutar ejemplos de TensorFlow C++ del Proyecto Final"
 LABEL version="1.0"
 
-# Copiar archivos del proyecto
-COPY Proyectofinalprogra /opt/proyecto
-
-# Instalar dependencias y configurar TensorFlow
+# Instalar dependencias
 RUN set -ex && \
     apt-get update && apt-get install -y \
         cmake git pkg-config rsync \
-    && rm -rf /var/lib/apt/lists/* && \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clonar repositorio
+RUN git clone https://github.com/JuanDigut/Proyectofinalprogra.git /opt/proyecto
+
+# Configurar TensorFlow
+RUN set -ex && \
     pip install --upgrade pip && \
     pip install tensorflow==2.13.1 && \
     mkdir -p /opt/tensorflow/lib /opt/tensorflow/include && \
-    # Get TensorFlow paths and copy libraries
+    # Get TensorFlow paths
     TENSORFLOW_PATH=$(python3 -c "import tensorflow as tf; print(tf.sysconfig.get_lib())") && \
     TENSORFLOW_INCLUDE=$(python3 -c "import tensorflow as tf; print(tf.sysconfig.get_include())") && \
     echo "TensorFlow path: $TENSORFLOW_PATH" && \
     echo "TensorFlow include: $TENSORFLOW_INCLUDE" && \
+    # List available libraries
+    echo "=== Available .so files ===" && \
+    ls -la ${TENSORFLOW_PATH}/*.so* || true && \
     # Copy ALL TensorFlow libraries
     cp -P ${TENSORFLOW_PATH}/*.so* /opt/tensorflow/lib/ 2>/dev/null || true && \
-    # Create symlinks
+    # Create symlinks for the linker
     cd /opt/tensorflow/lib && \
+    echo "=== Copied libraries ===" && \
+    ls -la && \
+    # Create symlinks if versioned files exist
     for lib in libtensorflow_cc libtensorflow_framework; do \
         if [ -f "${lib}.so.2" ]; then \
             ln -sf ${lib}.so.2 ${lib}.so; \
-        fi \
+        fi; \
     done && \
+    echo "=== After symlinks ===" && \
+    ls -la && \
     # Copy headers
     cp -r ${TENSORFLOW_INCLUDE}/* /opt/tensorflow/include/ && \
     # Update library cache
@@ -36,7 +47,8 @@ RUN set -ex && \
     ldconfig
 
 # Compilar el proyecto
-RUN cd /opt/proyecto && \
+RUN set -ex && \
+    cd /opt/proyecto && \
     rm -rf build && \
     mkdir -p build && cd build && \
     export LD_LIBRARY_PATH=/opt/tensorflow/lib:$LD_LIBRARY_PATH && \
@@ -49,8 +61,9 @@ RUN cd /opt/proyecto && \
 
 # Variables de entorno
 ENV TENSORFLOW_DIR=/opt/tensorflow
-ENV LD_LIBRARY_PATH=/opt/tensorflow/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/opt/tensorflow/lib
 ENV PATH=/opt/proyecto/build/examples:$PATH
+ENV TF_CPP_MIN_LOG_LEVEL=2
 
 # Directorio de trabajo
 WORKDIR /opt/proyecto
@@ -59,10 +72,10 @@ WORKDIR /opt/proyecto
 CMD ["/bin/bash", "-c", "echo '=== Contenedor TensorFlow C++ - Proyecto Final ===' && \
     echo '' && \
     echo 'Programas disponibles:' && \
-    echo '  - basic_operations       : Operaciones básicas con tensores' && \
-    echo '  - linear_regression      : Modelo de regresión lineal' && \
-    echo '  - neural_network         : Clasificación con red neuronal' && \
-    echo '  - anomaly_detection      : Detección de anomalías con autoencoder' && \
-    echo '  - time_series_prediction : Predicción de series temporales' && \
+    echo '  - basic_operations       : Operaciones basicas con tensores' && \
+    echo '  - linear_regression      : Modelo de regresion lineal' && \
+    echo '  - neural_network         : Clasificacion con red neuronal' && \
+    echo '  - anomaly_detection      : Deteccion de anomalias con autoencoder' && \
+    echo '  - time_series_prediction : Prediccion de series temporales' && \
     echo '' && \
     exec /bin/bash"]
