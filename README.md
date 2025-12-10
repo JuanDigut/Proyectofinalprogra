@@ -173,6 +173,7 @@ Monta un directorio local como volumen para que los archivos se guarden directam
 mkdir -p resultados
 
 # Ejecutar linear_regression con volumen montado
+# Copia todos los archivos CSV generados por linear_regression
 docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
   "linear_regression && cp /opt/proyecto/*.csv /resultados/"
 
@@ -186,7 +187,8 @@ docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
 New-Item -ItemType Directory -Force -Path resultados
 
 # Ejecutar linear_regression con volumen montado
-# Opción con línea continua para mejor legibilidad:
+# Copia todos los archivos CSV generados por linear_regression
+# El backtick (`) permite continuar el comando en la siguiente línea en PowerShell
 docker run --rm -v ${PWD}/resultados:/resultados tensorflow-cpp-ejemplos `
   sh -c "linear_regression && cp /opt/proyecto/*.csv /resultados/"
 
