@@ -174,7 +174,7 @@ mkdir -p resultados
 
 # Ejecutar linear_regression con volumen montado
 docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
-  "linear_regression && cp /opt/proyecto/resultados_ruido.csv /opt/proyecto/resultados_tasa_aprendizaje.csv /opt/proyecto/progresion_perdida.csv /resultados/"
+  "linear_regression && cp /opt/proyecto/*.csv /resultados/"
 
 # Los archivos CSV estarán en ./resultados/
 ```
@@ -186,8 +186,9 @@ docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
 New-Item -ItemType Directory -Force -Path resultados
 
 # Ejecutar linear_regression con volumen montado
-docker run --rm -v ${PWD}/resultados:/resultados tensorflow-cpp-ejemplos sh -c `
-  "linear_regression && cp /opt/proyecto/resultados_ruido.csv /opt/proyecto/resultados_tasa_aprendizaje.csv /opt/proyecto/progresion_perdida.csv /resultados/"
+# Opción con línea continua para mejor legibilidad:
+docker run --rm -v ${PWD}/resultados:/resultados tensorflow-cpp-ejemplos `
+  sh -c "linear_regression && cp /opt/proyecto/*.csv /resultados/"
 
 # Los archivos CSV estarán en .\resultados\
 ```
