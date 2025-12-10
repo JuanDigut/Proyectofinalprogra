@@ -101,7 +101,7 @@ Monta un directorio local como volumen para que los archivos se guarden directam
 mkdir -p resultados
 
 # Ejecutar linear_regression con volumen montado
-docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c "linear_regression && cp *.csv /resultados/"
+docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c "linear_regression && cp resultados_ruido.csv resultados_tasa_aprendizaje.csv progresion_perdida.csv /resultados/"
 
 # Los archivos CSV estarán en ./resultados/
 ```
@@ -114,7 +114,7 @@ Ejecuta el contenedor sin `--rm` y luego copia los archivos:
 # Ejecutar sin --rm para mantener el contenedor
 docker run --name tf-linear tensorflow-cpp-ejemplos linear_regression
 
-# Copiar los archivos CSV al host
+# Copiar los archivos CSV al host (desde el directorio de trabajo del contenedor /opt/proyecto)
 docker cp tf-linear:/opt/proyecto/resultados_ruido.csv .
 docker cp tf-linear:/opt/proyecto/resultados_tasa_aprendizaje.csv .
 docker cp tf-linear:/opt/proyecto/progresion_perdida.csv .
