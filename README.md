@@ -325,7 +325,7 @@ Proyectofinalprogra/
 ├── examples/
 │   ├── CMakeLists.txt       # Configuración de CMake para ejemplos
 │   ├── basic_operations.cpp # Ejemplo 1: Operaciones básicas con tensores
-│   └── linear_regression.cpp# Ejemplo 2: Modelo de regresión lineal
+│   └── linear_regression.cpp # Ejemplo 2: Modelo de regresión lineal
 ├── include/                 # Archivos de cabecera (si es necesario)
 └── src/                     # Archivos fuente (si es necesario)
 ```
