@@ -101,7 +101,7 @@ Monta un directorio local como volumen para que los archivos se guarden directam
 mkdir -p resultados
 
 # Ejecutar linear_regression con volumen montado
-docker run --rm -v $(pwd)/resultados:/opt/proyecto/resultados -w /opt/proyecto/resultados tensorflow-cpp-ejemplos linear_regression
+docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c "linear_regression && cp *.csv /resultados/"
 
 # Los archivos CSV estarán en ./resultados/
 ```
