@@ -88,6 +88,55 @@ docker run --rm tensorflow-cpp-ejemplos anomaly_detection
 docker run --rm tensorflow-cpp-ejemplos time_series_prediction
 ```
 
+### Paso 3.1: Guardar Archivos CSV de Regresión Lineal
+
+El programa `linear_regression` genera tres archivos CSV con resultados del análisis. Para acceder a estos archivos desde tu sistema host, tienes dos opciones:
+
+#### Opción 1: Montar un Volumen
+
+Monta un directorio local como volumen para que los archivos se guarden directamente en tu sistema:
+
+```bash
+# Crear directorio para los resultados
+mkdir -p resultados
+
+# Ejecutar linear_regression con volumen montado
+docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
+  "linear_regression && cp /opt/proyecto/resultados_ruido.csv /opt/proyecto/resultados_tasa_aprendizaje.csv /opt/proyecto/progresion_perdida.csv /resultados/"
+
+# Los archivos CSV estarán en ./resultados/
+```
+
+#### Opción 2: Copiar Archivos Después de la Ejecución
+
+Ejecuta el contenedor sin `--rm` y luego copia los archivos:
+
+```bash
+# Ejecutar sin --rm para mantener el contenedor
+docker run --name tf-linear tensorflow-cpp-ejemplos linear_regression
+
+# Copiar los archivos CSV al host (desde el directorio de trabajo del contenedor /opt/proyecto)
+docker cp tf-linear:/opt/proyecto/resultados_ruido.csv .
+docker cp tf-linear:/opt/proyecto/resultados_tasa_aprendizaje.csv .
+docker cp tf-linear:/opt/proyecto/progresion_perdida.csv .
+
+# Eliminar el contenedor
+docker rm tf-linear
+```
+
+#### Archivos CSV Generados
+
+Los archivos contienen los siguientes datos:
+
+1. **`resultados_ruido.csv`** - Análisis de sensibilidad al ruido
+   - Columnas: `nivel_ruido`, `pendiente_aprendida`, `intercepto_aprendido`, `error_pendiente`, `error_intercepto`, `mse`, `rmse`
+
+2. **`resultados_tasa_aprendizaje.csv`** - Análisis de sensibilidad a la tasa de aprendizaje
+   - Columnas: `tasa_aprendizaje`, `pendiente_aprendida`, `intercepto_aprendido`, `error_pendiente`, `error_intercepto`, `mse`, `rmse`, `epocas_convergencia`
+
+3. **`progresion_perdida.csv`** - Progresión de la pérdida durante el entrenamiento
+   - Columnas: `epoca`, `perdida`
+
 ### Paso 4: Shell Interactivo (Opcional)
 
 Si deseas explorar dentro del contenedor:
