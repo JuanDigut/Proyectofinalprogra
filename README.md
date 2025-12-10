@@ -1,6 +1,6 @@
 # Ejemplos de TensorFlow C++ - Proyecto Final
 
-Este repositorio contiene programas de ejemplo que demuestran la utilidad de la biblioteca TensorFlow C++. Los ejemplos muestran operaciones fundamentales, regresión lineal y clasificación con redes neuronales utilizando la API de C++ de TensorFlow.
+Este repositorio contiene programas de ejemplo que demuestran la utilidad de la biblioteca TensorFlow C++. Los ejemplos muestran operaciones fundamentales y regresión lineal utilizando la API de C++ de TensorFlow.
 
 ## Tabla de Contenidos
 
@@ -10,7 +10,6 @@ Este repositorio contiene programas de ejemplo que demuestran la utilidad de la 
 - [Ejemplos](#ejemplos)
   - [Operaciones Básicas](#ejemplo-1-operaciones-básicas)
   - [Regresión Lineal](#ejemplo-2-regresión-lineal)
-  - [Clasificación con Red Neuronal](#ejemplo-3-clasificación-con-red-neuronal)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Licencia](#licencia)
 
@@ -23,10 +22,9 @@ TensorFlow proporciona una poderosa API de C++ que permite a los desarrolladores
 - **Despliegues en producción** que requieren inferencia de baja latencia
 - **Integración** con bases de código C++ existentes
 
-Este proyecto demuestra tres casos de uso clave:
+Este proyecto demuestra dos casos de uso clave:
 1. Operaciones básicas con tensores y funciones matemáticas
 2. Entrenamiento de un modelo de regresión lineal
-3. Construcción y entrenamiento de una red neuronal para clasificación
 
 ## Requisitos Previos
 
@@ -51,7 +49,6 @@ Proyectofinalprogra/
     ├── CMakeLists.txt
     ├── basic_operations.cpp
     ├── linear_regression.cpp
-    ├── neural_network.cpp
     └── ... (otros ejemplos)
 ```
 
@@ -127,9 +124,6 @@ docker run --rm tensorflow-cpp-ejemplos basic_operations
 # Ejecutar el ejemplo de regresión lineal
 docker run --rm tensorflow-cpp-ejemplos linear_regression
 
-# Ejecutar el ejemplo de red neuronal
-docker run --rm tensorflow-cpp-ejemplos neural_network
-
 # Ejecutar el ejemplo de detección de anomalías
 docker run --rm tensorflow-cpp-ejemplos anomaly_detection
 
@@ -145,9 +139,6 @@ docker run --rm tensorflow-cpp-ejemplos basic_operations
 
 # Ejecutar el ejemplo de regresión lineal
 docker run --rm tensorflow-cpp-ejemplos linear_regression
-
-# Ejecutar el ejemplo de red neuronal
-docker run --rm tensorflow-cpp-ejemplos neural_network
 
 # Ejecutar el ejemplo de detección de anomalías
 docker run --rm tensorflow-cpp-ejemplos anomaly_detection
@@ -254,7 +245,6 @@ docker run --rm -it tensorflow-cpp-ejemplos /bin/bash
 # Dentro del contenedor puedes ejecutar:
 basic_operations
 linear_regression
-neural_network
 # etc.
 ```
 
@@ -266,7 +256,6 @@ docker run --rm -it tensorflow-cpp-ejemplos /bin/bash
 # Dentro del contenedor puedes ejecutar:
 basic_operations
 linear_regression
-neural_network
 # etc.
 ```
 
@@ -326,36 +315,6 @@ Pendiente aprendida:     2.4823 (real: 2.5)
 Intercepto aprendido: 1.0234 (real: 1.0)
 ```
 
-### Ejemplo 3: Clasificación con Red Neuronal
-
-**Archivo:** `examples/neural_network.cpp`
-
-Este ejemplo construye una red neuronal de 2 capas para clasificación binaria en un patrón similar a XOR.
-
-**Arquitectura de la Red:**
-- Capa de entrada: 2 neuronas (características)
-- Capa oculta: 8 neuronas con activación Sigmoide
-- Capa de salida: 1 neurona con activación Sigmoide
-
-**Conceptos Clave:**
-- Construcción de redes neuronales multicapa
-- Funciones de activación (Sigmoide)
-- Pérdida de Entropía Cruzada Binaria
-- Implementación manual de retropropagación
-- Métricas de precisión de clasificación
-
-**Salida de Ejemplo:**
-```
-=== Entrenamiento ===
-Época    0 | Pérdida: 0.6931 | Precisión: 50.00%
-Época  200 | Pérdida: 0.5234 | Precisión: 72.50%
-Época  400 | Pérdida: 0.3156 | Precisión: 88.00%
-...
-=== Evaluación Final ===
-Pérdida Final: 0.0823
-Precisión Final: 97.50%
-```
-
 ## Estructura del Proyecto
 
 ```
@@ -366,8 +325,7 @@ Proyectofinalprogra/
 ├── examples/
 │   ├── CMakeLists.txt       # Configuración de CMake para ejemplos
 │   ├── basic_operations.cpp # Ejemplo 1: Operaciones básicas con tensores
-│   ├── linear_regression.cpp# Ejemplo 2: Modelo de regresión lineal
-│   └── neural_network.cpp   # Ejemplo 3: Clasificador de red neuronal
+│   └── linear_regression.cpp # Ejemplo 2: Modelo de regresión lineal
 ├── include/                 # Archivos de cabecera (si es necesario)
 └── src/                     # Archivos fuente (si es necesario)
 ```
