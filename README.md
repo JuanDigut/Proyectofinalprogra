@@ -38,6 +38,25 @@ Para ejecutar estos ejemplos, se utiliza Docker, que incluye todas las dependenc
 
 La forma de ejecutar los ejemplos es utilizando Docker. El repositorio incluye un `Dockerfile` que construye automáticamente todos los ejemplos con todas las dependencias necesarias.
 
+### Estructura Requerida del Proyecto
+
+El Dockerfile extrae y utiliza archivos directamente desde la carpeta donde se encuentra. Asegúrate de tener la siguiente estructura de directorios antes de construir la imagen:
+
+```
+Proyectofinalprogra/
+├── CMakeLists.txt           # Archivo de configuración de CMake
+├── dockerfile               # Definición del contenedor Docker
+├── README.md                # Este archivo
+└── examples/                # Carpeta con los ejemplos en C++
+    ├── CMakeLists.txt
+    ├── basic_operations.cpp
+    ├── linear_regression.cpp
+    ├── neural_network.cpp
+    └── ... (otros ejemplos)
+```
+
+El comando `COPY . /opt/proyecto` en el Dockerfile copia todos los archivos del directorio actual al contenedor, incluyendo el código fuente y archivos de configuración.
+
 ### Paso 1: Instalar Docker
 
 Si aún no tienes Docker instalado:
@@ -52,9 +71,20 @@ sudo systemctl enable docker
 sudo usermod -aG docker $USER
 ```
 
+**Windows:**
+- Descargar e instalar Docker Desktop desde https://docs.docker.com/desktop/install/windows-install/
+- Asegurar que WSL 2 esté habilitado (Docker Desktop lo configurará automáticamente)
+
+**macOS:**
+- Descargar e instalar Docker Desktop desde https://docs.docker.com/desktop/install/mac-install/
+
 **Otras plataformas:** Visita https://docs.docker.com/get-docker/
 
 ### Paso 2: Construir la Imagen Docker
+
+Asegúrate de estar en el directorio raíz del repositorio (donde se encuentra el Dockerfile).
+
+#### En Linux/macOS (Bash):
 
 ```bash
 # Clonar el repositorio (si aún no lo has hecho)
@@ -63,13 +93,32 @@ cd Proyectofinalprogra
 
 # Construir la imagen Docker
 docker build -t tensorflow-cpp-ejemplos .
+
+# Verificar que la imagen se construyó correctamente
+docker images tensorflow-cpp-ejemplos
 ```
 
-Este proceso puede tomar varios minutos la primera vez, ya que descarga e instala TensorFlow y compila los ejemplos.
+#### En Windows (PowerShell):
+
+```powershell
+# Clonar el repositorio (si aún no lo has hecho)
+git clone https://github.com/JuanDigut/Proyectofinalprogra.git
+cd Proyectofinalprogra
+
+# Construir la imagen Docker
+docker build -t tensorflow-cpp-ejemplos .
+
+# Verificar que la imagen se construyó correctamente
+docker images tensorflow-cpp-ejemplos
+```
+
+**Nota:** Este proceso puede tomar varios minutos la primera vez, ya que descarga e instala TensorFlow y compila los ejemplos.
 
 ### Paso 3: Ejecutar los Ejemplos
 
-Una vez construida la imagen, puedes ejecutar los ejemplos directamente:
+Una vez construida la imagen, puedes ejecutar los ejemplos directamente.
+
+#### En Linux/macOS (Bash):
 
 ```bash
 # Ejecutar el ejemplo de operaciones básicas
@@ -88,30 +137,86 @@ docker run --rm tensorflow-cpp-ejemplos anomaly_detection
 docker run --rm tensorflow-cpp-ejemplos time_series_prediction
 ```
 
+#### En Windows (PowerShell):
+
+```powershell
+# Ejecutar el ejemplo de operaciones básicas
+docker run --rm tensorflow-cpp-ejemplos basic_operations
+
+# Ejecutar el ejemplo de regresión lineal
+docker run --rm tensorflow-cpp-ejemplos linear_regression
+
+# Ejecutar el ejemplo de red neuronal
+docker run --rm tensorflow-cpp-ejemplos neural_network
+
+# Ejecutar el ejemplo de detección de anomalías
+docker run --rm tensorflow-cpp-ejemplos anomaly_detection
+
+# Ejecutar el ejemplo de predicción de series temporales
+docker run --rm tensorflow-cpp-ejemplos time_series_prediction
+```
+
+**Nota:** Los comandos de Docker son idénticos en Linux, macOS y Windows PowerShell.
+
 ### Paso 3.1: Guardar Archivos CSV de Regresión Lineal
 
 El programa `linear_regression` genera tres archivos CSV con resultados del análisis. Para acceder a estos archivos desde tu sistema host, tienes dos opciones:
 
 #### Opción 1: Montar un Volumen
 
-Monta un directorio local como volumen para que los archivos se guarden directamente en tu sistema:
+Monta un directorio local como volumen para que los archivos se guarden directamente en tu sistema.
+
+**En Linux/macOS (Bash):**
 
 ```bash
 # Crear directorio para los resultados
 mkdir -p resultados
 
 # Ejecutar linear_regression con volumen montado
+# Copia todos los archivos CSV generados por linear_regression
 docker run --rm -v $(pwd)/resultados:/resultados tensorflow-cpp-ejemplos sh -c \
-  "linear_regression && cp /opt/proyecto/resultados_ruido.csv /opt/proyecto/resultados_tasa_aprendizaje.csv /opt/proyecto/progresion_perdida.csv /resultados/"
+  "linear_regression && cp /opt/proyecto/*.csv /resultados/"
 
 # Los archivos CSV estarán en ./resultados/
 ```
 
+**En Windows (PowerShell):**
+
+```powershell
+# Crear directorio para los resultados
+New-Item -ItemType Directory -Force -Path resultados
+
+# Ejecutar linear_regression con volumen montado
+# Copia todos los archivos CSV generados por linear_regression
+# El backtick (`) permite continuar el comando en la siguiente línea en PowerShell
+docker run --rm -v ${PWD}/resultados:/resultados tensorflow-cpp-ejemplos `
+  sh -c "linear_regression && cp /opt/proyecto/*.csv /resultados/"
+
+# Los archivos CSV estarán en .\resultados\
+```
+
 #### Opción 2: Copiar Archivos Después de la Ejecución
 
-Ejecuta el contenedor sin `--rm` y luego copia los archivos:
+Ejecuta el contenedor sin `--rm` y luego copia los archivos.
+
+**En Linux/macOS (Bash):**
 
 ```bash
+# Ejecutar sin --rm para mantener el contenedor
+docker run --name tf-linear tensorflow-cpp-ejemplos linear_regression
+
+# Copiar los archivos CSV al host (desde el directorio de trabajo del contenedor /opt/proyecto)
+docker cp tf-linear:/opt/proyecto/resultados_ruido.csv .
+docker cp tf-linear:/opt/proyecto/resultados_tasa_aprendizaje.csv .
+docker cp tf-linear:/opt/proyecto/progresion_perdida.csv .
+
+# Eliminar el contenedor
+docker rm tf-linear
+```
+
+**En Windows (PowerShell):**
+
+```powershell
 # Ejecutar sin --rm para mantener el contenedor
 docker run --name tf-linear tensorflow-cpp-ejemplos linear_regression
 
@@ -139,7 +244,9 @@ Los archivos contienen los siguientes datos:
 
 ### Paso 4: Shell Interactivo (Opcional)
 
-Si deseas explorar dentro del contenedor:
+Si deseas explorar dentro del contenedor, puedes iniciar una sesión interactiva.
+
+#### En Linux/macOS (Bash):
 
 ```bash
 docker run --rm -it tensorflow-cpp-ejemplos /bin/bash
@@ -150,6 +257,20 @@ linear_regression
 neural_network
 # etc.
 ```
+
+#### En Windows (PowerShell):
+
+```powershell
+docker run --rm -it tensorflow-cpp-ejemplos /bin/bash
+
+# Dentro del contenedor puedes ejecutar:
+basic_operations
+linear_regression
+neural_network
+# etc.
+```
+
+**Nota:** Una vez dentro del contenedor, los comandos son idénticos independientemente del sistema operativo host.
 
 ## Ejemplos
 
