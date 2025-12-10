@@ -6,9 +6,7 @@ Este repositorio contiene programas de ejemplo que demuestran la utilidad de la 
 
 - [Descripción General](#descripción-general)
 - [Requisitos Previos](#requisitos-previos)
-- [Ejecución con Docker (Recomendado)](#ejecución-con-docker-recomendado)
-- [Ejecución con Apptainer (Contenedor)](#ejecución-con-apptainer-contenedor)
-- [Compilación Local (Opcional)](#compilación-local-opcional)
+- [Construcción del Contenedor Docker](#construcción-del-contenedor-docker)
 - [Ejemplos](#ejemplos)
   - [Operaciones Básicas](#ejemplo-1-operaciones-básicas)
   - [Regresión Lineal](#ejemplo-2-regresión-lineal)
@@ -32,18 +30,13 @@ Este proyecto demuestra tres casos de uso clave:
 
 ## Requisitos Previos
 
-Para ejecutar estos ejemplos, recomendamos usar contenedores Docker o Apptainer, que incluyen todas las dependencias necesarias:
+Para ejecutar estos ejemplos, se utiliza Docker, que incluye todas las dependencias necesarias:
 
-- **Docker** o **Apptainer/Singularity** para ejecutar los ejemplos en un entorno aislado
+- **Docker** para construir y ejecutar los ejemplos en un entorno aislado
 
-Si deseas compilar localmente, necesitarás:
-- **Compilador C++** con soporte para C++17 (GCC 7+, Clang 5+, o MSVC 2019+)
-- **CMake** versión 3.16 o superior
-- **Biblioteca TensorFlow C++** (libtensorflow_cc)
+## Construcción del Contenedor Docker
 
-## Ejecución con Docker (Recomendado)
-
-La forma más sencilla de ejecutar los ejemplos es utilizando Docker. El repositorio incluye un `Dockerfile` que construye automáticamente todos los ejemplos con todas las dependencias necesarias.
+La forma de ejecutar los ejemplos es utilizando Docker. El repositorio incluye un `Dockerfile` que construye automáticamente todos los ejemplos con todas las dependencias necesarias.
 
 ### Paso 1: Instalar Docker
 
@@ -107,105 +100,6 @@ basic_operations
 linear_regression
 neural_network
 # etc.
-```
-
-## Ejecución con Apptainer (Contenedor)
-
-Para ejecutar los ejemplos en sistemas HPC o donde Docker no está disponible, puedes usar Apptainer (anteriormente Singularity). El archivo `tensorflow_cpp.def` está basado en el Dockerfile del proyecto.
-
-### Paso 1: Instalar Apptainer
-
-En Ubuntu/Debian:
-```bash
-# Agregar el repositorio de Apptainer
-sudo apt update
-sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:apptainer/ppa
-sudo apt update
-sudo apt install -y apptainer
-```
-
-En sistemas con módulos de ambiente (HPC):
-```bash
-module load apptainer
-# o
-module load singularity
-```
-
-### Paso 2: Construir el Contenedor
-
-El archivo `tensorflow_cpp.def` está basado en el mismo Dockerfile utilizado para Docker:
-
-```bash
-# Construir la imagen del contenedor desde la definición
-sudo apptainer build tensorflow_cpp.sif tensorflow_cpp.def
-```
-
-Nota: Si no tienes permisos de sudo, puedes usar el modo fakeroot:
-```bash
-apptainer build --fakeroot tensorflow_cpp.sif tensorflow_cpp.def
-```
-
-### Paso 3: Ejecutar los Ejemplos
-
-Una vez construido el contenedor, puedes ejecutar los ejemplos directamente:
-
-```bash
-# Ejecutar el ejemplo de operaciones básicas
-apptainer exec tensorflow_cpp.sif basic_operations
-
-# Ejecutar el ejemplo de regresión lineal
-apptainer exec tensorflow_cpp.sif linear_regression
-
-# Ejecutar el ejemplo de red neuronal
-apptainer exec tensorflow_cpp.sif neural_network
-
-# Ejecutar el ejemplo de detección de anomalías
-apptainer exec tensorflow_cpp.sif anomaly_detection
-
-# Ejecutar el ejemplo de predicción de series temporales
-apptainer exec tensorflow_cpp.sif time_series_prediction
-```
-
-### Paso 4: Shell Interactivo (Opcional)
-
-También puedes entrar al contenedor de forma interactiva:
-
-```bash
-apptainer shell tensorflow_cpp.sif
-
-# Dentro del contenedor:
-basic_operations
-linear_regression
-neural_network
-```
-
-## Compilación Local (Opcional)
-
-Si prefieres compilar los ejemplos localmente sin usar contenedores, necesitarás instalar TensorFlow C++ en tu sistema. Este proceso es más complejo y requiere compilar TensorFlow desde el código fuente.
-
-### Paso 1: Clonar el Repositorio
-
-```bash
-git clone https://github.com/JuanDigut/Proyectofinalprogra.git
-cd Proyectofinalprogra
-```
-
-### Paso 2: Configurar y Compilar
-
-```bash
-mkdir build
-cd build
-cmake -DTENSORFLOW_DIR=/ruta/a/tensorflow ..
-make -j$(nproc)
-```
-
-### Paso 3: Ejecutar los Ejemplos
-
-```bash
-./examples/basic_operations
-./examples/linear_regression
-./examples/neural_network
 ```
 
 ## Ejemplos
@@ -298,7 +192,7 @@ Precisión Final: 97.50%
 Proyectofinalprogra/
 ├── CMakeLists.txt           # Configuración principal de CMake
 ├── README.md                # Este archivo
-├── apptainer.def            # Definición del contenedor Apptainer
+├── dockerfile               # Definición del contenedor Docker
 ├── examples/
 │   ├── CMakeLists.txt       # Configuración de CMake para ejemplos
 │   ├── basic_operations.cpp # Ejemplo 1: Operaciones básicas con tensores
@@ -343,28 +237,6 @@ Tensor tensor(DT_FLOAT, TensorShape({3, 4}));
 auto matrix = tensor.matrix<float>();
 matrix(0, 0) = 1.0f;
 ```
-
-## Solución de Problemas
-
-### Problemas Comunes
-
-1. **TensorFlow no encontrado**
-   - Asegúrate de que `TENSORFLOW_DIR` esté configurado correctamente
-   - Verifica que `libtensorflow_cc.so` exista en el directorio lib
-
-2. **Cabeceras faltantes**
-   - Verifica que la ruta de inclusión de TensorFlow sea correcta
-   - Asegúrate de tener las cabeceras completas de TensorFlow C++ (no solo la API de C)
-
-3. **Errores de enlace**
-   - Agrega la ruta de la biblioteca TensorFlow a `LD_LIBRARY_PATH`:
-     ```bash
-     export LD_LIBRARY_PATH=$TENSORFLOW_DIR/lib:$LD_LIBRARY_PATH
-     ```
-
-4. **Errores en tiempo de ejecución**
-   - Asegúrate de usar una versión compatible de TensorFlow
-   - Verifica la compatibilidad de CUDA/cuDNN si usas GPU
 
 ## Licencia
 
