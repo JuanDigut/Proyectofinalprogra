@@ -11,17 +11,9 @@ target_link_libraries(basic_operations ${TENSORFLOW_LIBS})
 add_executable(linear_regression linear_regression.cpp)
 target_link_libraries(linear_regression ${TENSORFLOW_LIBS})
 
-# Ejemplo 3: Clasificación con Red Neuronal
-add_executable(neural_network neural_network.cpp)
-target_link_libraries(neural_network ${TENSORFLOW_LIBS})
-
 # Ejemplo 6: Detección de Anomalías con Autoencoder
 add_executable(anomaly_detection anomaly_detection.cpp)
 target_link_libraries(anomaly_detection ${TENSORFLOW_LIBS})
-
-# Ejemplo 7: Predicción de Series Temporales
-add_executable(time_series_prediction time_series_prediction.cpp)
-target_link_libraries(time_series_prediction ${TENSORFLOW_LIBS})
 
 # Instalar objetivos
 install(TARGETS basic_operations linear_regression neural_network anomaly_detection time_series_prediction
