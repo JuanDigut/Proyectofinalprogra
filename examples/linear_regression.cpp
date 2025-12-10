@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -304,11 +303,33 @@ int main() {
     
     csv_lr.close();
     std::cout << "\nResultados guardados en: resultados_tasa_aprendizaje.csv" << std::endl;
-  // análisis de datos
-    std::ofstream csv_progresion("progresion_perdida.csv");
+    
+    // =====================================================
+    // Análisis de progresión de pérdida (ruido = 1.0)
+    // =====================================================
+    std::ofstream csv_progresion("progresion_perdida4.csv");
     csv_progresion << "epoca,perdida\n";
     
-    // Usar los mismos datos comunes
+    // Generar datos con ruido = 1.0 para este análisis
+    const float RUIDO_PROGRESION = 2.0f;
+    std::vector<float> datos_x_prog, datos_y_prog;
+    {
+        std::mt19937 gen_prog(42);  // Semilla fija
+        std::normal_distribution<float> ruido_prog(0.0f, RUIDO_PROGRESION);
+        std::uniform_real_distribution<float> dist_x(0.0f, 10.0f);
+        
+        datos_x_prog.resize(NUM_MUESTRAS);
+        datos_y_prog.resize(NUM_MUESTRAS);
+        
+        for (int i = 0; i < NUM_MUESTRAS; ++i) {
+            datos_x_prog[i] = dist_x(gen_prog);
+            datos_y_prog[i] = PENDIENTE_REAL * datos_x_prog[i] + INTERCEPTO_REAL + ruido_prog(gen_prog);
+        }
+    }
+    
+    Tensor tensor_x_prog = crearTensor(datos_x_prog);
+    Tensor tensor_y_prog = crearTensor(datos_y_prog);
+    
     Scope root = Scope::NewRootScope();
     
     auto placeholder_x = Placeholder(root.WithOpName("x"), DT_FLOAT,
@@ -318,11 +339,11 @@ int main() {
     
     auto w_init = Variable(root.WithOpName("w"), {1, 1}, DT_FLOAT);
     auto w_assign = Assign(root.WithOpName("w_assign"), w_init, 
-                          Const(root, {{0.5f}}));  // ← Mismo valor inicial
+                          Const(root, {{0.5f}}));
     
     auto b_init = Variable(root.WithOpName("b"), {1, 1}, DT_FLOAT);
     auto b_assign = Assign(root.WithOpName("b_assign"), b_init,
-                          Const(root, {{0.5f}}));  // ← Mismo valor inicial
+                          Const(root, {{0.5f}}));
 
     auto y_pred = Add(root.WithOpName("prediccion"),
                      MatMul(root, placeholder_x, w_init),
@@ -352,24 +373,22 @@ int main() {
     fetch_ops.push_back(w_update);
     fetch_ops.push_back(b_update);
     
-    std::cout << "\nProgresión de pérdida durante entrenamiento (ruido = 0.5):\n";
+    std::cout << "\nProgresión de pérdida durante entrenamiento (ruido = " << RUIDO_PROGRESION << "):\n";
     std::cout << "Época  | Pérdida\n";
     std::cout << "-------|--------\n";
     
     for (int epoca = 0; epoca < NUM_EPOCAS; ++epoca) {
         TF_CHECK_OK(session.Run(
-            {{placeholder_x, tensor_x_comun}, {placeholder_y, tensor_y_comun}},
+            {{placeholder_x, tensor_x_prog}, {placeholder_y, tensor_y_prog}},
             fetch_ops,
             &salidas));
         
         float perdida_actual = salidas[0].scalar<float>()();
         
-        // Guardar cada 50 épocas en CSV (excluyendo época 0)
         if ((epoca > 0 && epoca % 50 == 0) || epoca == NUM_EPOCAS - 1) {
             csv_progresion << epoca << "," << perdida_actual << "\n";
         }
         
-        // Imprimir en consola cada 200 épocas (excluyendo época 0)
         if ((epoca > 0 && epoca % 200 == 0) || epoca == NUM_EPOCAS - 1) {
             std::cout << std::setw(5) << epoca << " | " << std::setw(7) << perdida_actual << std::endl;
         }
